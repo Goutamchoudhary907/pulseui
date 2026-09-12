@@ -1,0 +1,58 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Instrument Serif', Georgia, 'Times New Roman', serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+
+  --color-paper: #fafaf8;
+  --color-ink: #1c1917;
+}
+
+:root {
+  color-scheme: light;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-feature-settings: 'cv11', 'ss01';
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Fine paper grain over the whole page — keeps large flat areas from
+   feeling like a plain white void. */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+  opacity: 0.035;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Faint dotted grid used behind previews. */
+.bg-dots {
+  background-image: radial-gradient(circle, rgba(28, 25, 23, 0.10) 1px, transparent 1px);
+  background-size: 18px 18px;
+}
+
+/* Softly fading radial glow used behind hero / CTA. */
+.glow {
+  background: radial-gradient(
+    closest-side,
+    rgba(124, 58, 237, 0.22),
+    rgba(124, 58, 237, 0.08) 45%,
+    transparent 75%
+  );
+  filter: blur(24px);
+}
