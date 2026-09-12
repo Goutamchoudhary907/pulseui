@@ -23,7 +23,7 @@ export default function Solution() {
               <em className="italic text-violet-700">An organic treatment.</em>
             </>
           }
-          body="Pulseui takes the moments every AI product already has and renders them with physical metaphors — ink, liquid, swarms, film — in the spirit of rareui and Aceternity, but themed around AI states instead of generic marketing UI."
+          body="Pulseui takes the moments every AI product already has and renders them with physical metaphors — light, liquid, swarms, film — in the spirit of rareui and Aceternity, but themed around AI states instead of generic marketing UI."
         />
 
         <div className="rounded-3xl border border-stone-200 bg-white p-2 shadow-[0_1px_2px_rgba(0,0,0,0.03)]">

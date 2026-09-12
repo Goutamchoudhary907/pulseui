@@ -1,14 +1,14 @@
 import thinkingPulseSource from './components/ThinkingPulse.jsx?raw';
 import confidenceShimmerSource from './components/ConfidenceShimmer.jsx?raw';
 import liquidContextMeterSource from './components/LiquidContextMeter.jsx?raw';
-import inkBleedDiffSource from './components/InkBleedDiff.jsx?raw';
+import sweepDiffSource from './components/SweepDiff.jsx?raw';
 import swarmStatusSource from './components/SwarmStatus.jsx?raw';
 import rewindRegenerateSource from './components/RewindRegenerate.jsx?raw';
 import {
   ThinkingPulsePreview,
   ConfidenceShimmerPreview,
   LiquidContextMeterPreview,
-  InkBleedDiffPreview,
+  SweepDiffPreview,
   SwarmStatusPreview,
   RewindRegeneratePreview,
 } from './lib/previews';
@@ -27,7 +27,7 @@ export const registry = [
     file: 'ThinkingPulse',
     name: 'Thinking Pulse',
     description:
-      'A loose particle field that visibly drifts, then converges and tightens as the model settles on an answer. Replaces the generic AI "thinking" spinner.',
+      'A gyroscope of light — glowing particles on three tilted orbits around a breathing core — that spins up and collapses into a single point the instant the model settles. Replaces the generic "thinking" spinner.',
     status: 'available',
     preview: ThinkingPulsePreview,
     source: thinkingPulseSource,
@@ -47,27 +47,27 @@ export const registry = [
     file: 'LiquidContextMeter',
     name: 'Liquid Context Meter',
     description:
-      'The context-window gauge as a glass vessel filling with liquid — it sloshes when a large chunk lands and warms as it nears the limit.',
+      'A progress bar where the fill is liquid in glass — it surges and sloshes when a big chunk lands, warms near the limit, and boils when you\'re about to hit it.',
     status: 'available',
     preview: LiquidContextMeterPreview,
     source: liquidContextMeterSource,
   },
   {
-    slug: 'ink-bleed-diff',
-    file: 'InkBleedDiff',
-    name: 'Ink-Bleed Diff',
+    slug: 'sweep-diff',
+    file: 'SweepDiff',
+    name: 'Sweep Diff',
     description:
-      'An accepted code diff soaks into the page like ink bleeding into paper — an irregular, mottled blot instead of a flash of green/red lines.',
+      'A familiar green/red diff — until you accept it. A beam sweeps down: removed characters scatter and fall away, added ones snap into place. The diff becomes the code.',
     status: 'available',
-    preview: InkBleedDiffPreview,
-    source: inkBleedDiffSource,
+    preview: SweepDiffPreview,
+    source: sweepDiffSource,
   },
   {
     slug: 'swarm-status',
     file: 'SwarmStatus',
     name: 'Swarm Status',
     description:
-      'Parallel subagents as boid-style flocks drifting independently, each settling to the centre as it finishes, all collapsing into one point when done.',
+      'Parallel agents as flocks of light orbiting a progress ring. Each one streams into the core as it finishes; when all are done, the core flares into a check.',
     status: 'available',
     preview: SwarmStatusPreview,
     source: swarmStatusSource,

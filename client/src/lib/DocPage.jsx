@@ -123,7 +123,7 @@ export function PillButton({ active, onClick, children }) {
     <button
       onClick={onClick}
       className={
-        'rounded-full px-4 py-1.5 text-sm transition-colors ' +
+        'whitespace-nowrap rounded-full px-4 py-1.5 text-sm transition-colors ' +
         (active ? 'bg-ink text-white' : 'text-stone-600 hover:text-ink')
       }
     >

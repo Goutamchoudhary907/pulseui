@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import ThinkingPulse from '../components/ThinkingPulse';
 import ConfidenceShimmer from '../components/ConfidenceShimmer';
 import LiquidContextMeter from '../components/LiquidContextMeter';
-import InkBleedDiff from '../components/InkBleedDiff';
+import SweepDiff from '../components/SweepDiff';
 import SwarmStatus from '../components/SwarmStatus';
 import RewindRegenerate from '../components/RewindRegenerate';
 
@@ -42,21 +42,23 @@ export function ConfidenceShimmerPreview() {
 }
 
 export function LiquidContextMeterPreview() {
-  const value = useCycle([0.32, 0.61, 0.9, 0.45], 2600);
-  return <LiquidContextMeter value={value} width={64} height={110} />;
+  const value = useCycle([0.32, 0.61, 0.97, 0.45], 2600);
+  return <LiquidContextMeter value={value} length={170} thickness={14} label />;
 }
 
-export function InkBleedDiffPreview() {
-  const accepted = useCycle([true, false], 2800);
+export function SweepDiffPreview() {
+  const accepted = useCycle([false, true], 2600);
   return (
     <div className="w-[230px] overflow-hidden rounded-lg border border-stone-200">
-      <InkBleedDiff
+      <SweepDiff
         accepted={accepted}
         style={{ padding: '6px 0' }}
         lines={[
           { type: 'context', content: 'const retries =' },
           { type: 'remove', content: '  1;' },
           { type: 'add', content: '  3;' },
+          { type: 'remove', content: '  timeout: 500,' },
+          { type: 'add', content: '  timeout: 5000,' },
         ]}
       />
     </div>
@@ -70,7 +72,7 @@ export function SwarmStatusPreview() {
     { id: 'b', status: stage >= 2 ? 'done' : 'running' },
     { id: 'c', status: stage >= 3 ? 'done' : 'running' },
   ];
-  return <SwarmStatus agents={agents} width={250} height={130} boidsPerAgent={6} />;
+  return <SwarmStatus agents={agents} width={250} height={140} boidsPerAgent={6} showLabels={false} />;
 }
 
 const ANSWERS = [
