@@ -20,7 +20,7 @@ const steps = [
 
 export default function HowItWorks() {
   return (
-    <section className="border-t border-stone-200">
+    <section id="how-it-works" className="scroll-mt-16 border-t border-stone-200">
       <div className="max-w-6xl mx-auto px-6 py-24">
         <SectionHeading
           eyebrow="How it works"
@@ -29,7 +29,7 @@ export default function HowItWorks() {
               Three steps, <em className="italic">zero install.</em>
             </>
           }
-          body="The same model as shadcn/ui and 21st.dev — the component lives in your codebase, not in node_modules."
+          body="The same model as shadcn/ui — the component lives in your codebase, not in node_modules."
         />
 
         <ol className="relative mt-14 grid gap-10 sm:grid-cols-3">
@@ -52,13 +52,13 @@ export default function HowItWorks() {
             <span className="h-2.5 w-2.5 rounded-full bg-stone-200" />
             <span className="h-2.5 w-2.5 rounded-full bg-stone-200" />
             <span className="ml-3 font-mono text-[11px] text-stone-400">
-              src/components/ThinkingPulse.jsx
+              src/components/ThinkingIndicator.jsx
             </span>
           </div>
           <pre className="overflow-x-auto px-5 py-4 font-mono text-[13px] leading-6 text-stone-700">
-{`import ThinkingPulse from './components/ThinkingPulse';
+{`import ThinkingIndicator from './components/ThinkingIndicator';
 
-<ThinkingPulse settled={!isStreaming} />`}
+<ThinkingIndicator settled={!isStreaming} />`}
           </pre>
         </div>
       </div>

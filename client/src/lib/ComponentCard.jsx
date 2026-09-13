@@ -39,7 +39,7 @@ export default function ComponentCard({ entry }) {
           <h3 className="font-display text-[22px] leading-none tracking-tight text-ink">
             {entry.name}
           </h3>
-          <StatusBadge status={entry.status} />
+          {!available && <StatusBadge status={entry.status} />}
         </div>
         <p className="mt-3 text-sm leading-relaxed text-stone-600">
           {entry.description}

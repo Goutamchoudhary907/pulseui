@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { getComponent } from '../../registry';
-import ConfidenceShimmer from '../../components/ConfidenceShimmer';
+import ConfidenceText from '../../components/ConfidenceText';
 import DocPage, { PillButton } from '../../lib/DocPage';
 
-const entry = getComponent('confidence-shimmer');
+const entry = getComponent('confidence-text');
 
 // A realistic answer with per-token confidence, the way a logprob-aware
 // renderer would see it: facts the model is sure of stay solid, guesses shimmer.
@@ -31,7 +31,7 @@ const props = [
   { name: 'className / style', type: 'any', desc: 'Passed to the wrapping span.' },
 ];
 
-export default function ConfidenceShimmerPage() {
+export default function ConfidenceTextPage() {
   const [threshold, setThreshold] = useState(0.6);
 
   return (
@@ -41,7 +41,7 @@ export default function ConfidenceShimmerPage() {
       previewClassName="min-h-[320px]"
       preview={
         <div className="max-w-xl px-8 text-center text-[19px] leading-[1.75] text-stone-800">
-          <ConfidenceShimmer tokens={TOKENS} threshold={threshold} />
+          <ConfidenceText tokens={TOKENS} threshold={threshold} />
           <div className="mt-6 font-mono text-[11px] text-stone-400">
             hover a shimmering token to see its score
           </div>
@@ -57,10 +57,10 @@ export default function ConfidenceShimmerPage() {
           ))}
         </>
       }
-      usage={`import ConfidenceShimmer from './components/ConfidenceShimmer';
+      usage={`import ConfidenceText from './components/ConfidenceText';
 
 // tokens straight from a logprob-aware stream
-<ConfidenceShimmer
+<ConfidenceText
   tokens={[
     'The', 'cause', 'was',
     { text: 'probably', confidence: 0.18 },

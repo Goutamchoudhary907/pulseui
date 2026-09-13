@@ -1,27 +1,35 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import SiteLayout from './layout/SiteLayout';
+import ScrollToTop from './lib/ScrollToTop';
 import Home from './pages/Home';
 import ComponentsIndex from './pages/ComponentsIndex';
-import ThinkingPulsePage from './pages/components/ThinkingPulsePage';
-import ConfidenceShimmerPage from './pages/components/ConfidenceShimmerPage';
-import LiquidContextMeterPage from './pages/components/LiquidContextMeterPage';
-import SweepDiffPage from './pages/components/SweepDiffPage';
-import SwarmStatusPage from './pages/components/SwarmStatusPage';
-import RewindRegeneratePage from './pages/components/RewindRegeneratePage';
+import NotFound from './pages/NotFound';
+import ThinkingIndicatorPage from './pages/components/ThinkingIndicatorPage';
+import ConfidenceTextPage from './pages/components/ConfidenceTextPage';
+import ContextMeterPage from './pages/components/ContextMeterPage';
+import CodeDiffPage from './pages/components/CodeDiffPage';
+import AgentStatusPage from './pages/components/AgentStatusPage';
+import RegeneratePage from './pages/components/RegeneratePage';
+import TimerPage from './pages/components/TimerPage';
+import StreamingTextPage from './pages/components/StreamingTextPage';
 
 export default function App() {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <Routes>
         <Route element={<SiteLayout />}>
           <Route path="/" element={<Home />} />
           <Route path="/components" element={<ComponentsIndex />} />
-          <Route path="/components/thinking-pulse" element={<ThinkingPulsePage />} />
-          <Route path="/components/confidence-shimmer" element={<ConfidenceShimmerPage />} />
-          <Route path="/components/liquid-context-meter" element={<LiquidContextMeterPage />} />
-          <Route path="/components/sweep-diff" element={<SweepDiffPage />} />
-          <Route path="/components/swarm-status" element={<SwarmStatusPage />} />
-          <Route path="/components/rewind-regenerate" element={<RewindRegeneratePage />} />
+          <Route path="/components/thinking-indicator" element={<ThinkingIndicatorPage />} />
+          <Route path="/components/confidence-text" element={<ConfidenceTextPage />} />
+          <Route path="/components/context-meter" element={<ContextMeterPage />} />
+          <Route path="/components/code-diff" element={<CodeDiffPage />} />
+          <Route path="/components/agent-status" element={<AgentStatusPage />} />
+          <Route path="/components/regenerate" element={<RegeneratePage />} />
+          <Route path="/components/timer" element={<TimerPage />} />
+          <Route path="/components/streaming-text" element={<StreamingTextPage />} />
+          <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
     </BrowserRouter>

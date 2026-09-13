@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 
 /**
- * LiquidContextMeter
+ * ContextMeter
  *
  * A context-window gauge with the footprint of an ordinary progress bar —
  * but the fill is liquid inside glass. The level eases to its value on a
@@ -25,7 +25,7 @@ import { useEffect, useRef } from 'react';
  *  - label (true | string): text beside the bar. `true` shows the percent.
  *  - className / style: passed to the wrapper.
  */
-export default function LiquidContextMeter({
+export default function ContextMeter({
   value = 0,
   orientation = 'horizontal',
   length,

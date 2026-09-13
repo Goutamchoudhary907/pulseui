@@ -64,7 +64,7 @@ export default function Problem() {
               <em className="italic">same four moments.</em>
             </>
           }
-          body="They're functional — kits like 21st's agent-elements and assistant-ui already cover that version well. But visually they're interchangeable. Swap one product's spinner for another's and nobody would notice."
+          body="They're functional — plenty of kits already cover that version well. But visually they're interchangeable. Swap one product's spinner for another's and nobody would notice."
         />
 
         <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

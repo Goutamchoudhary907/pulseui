@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { getComponent } from '../../registry';
-import SweepDiff from '../../components/SweepDiff';
+import CodeDiff from '../../components/CodeDiff';
 import DocPage, { PillButton } from '../../lib/DocPage';
 
-const entry = getComponent('sweep-diff');
+const entry = getComponent('code-diff');
 
 const LINES = [
   { type: 'context', content: 'async function fetchUser(id) {' },
@@ -24,7 +24,7 @@ const props = [
   { name: 'className / style', type: 'any', desc: 'Passed to the wrapper.' },
 ];
 
-export default function SweepDiffPage() {
+export default function CodeDiffPage() {
   const [accepted, setAccepted] = useState(false);
 
   return (
@@ -40,7 +40,7 @@ export default function SweepDiffPage() {
               {accepted ? '✓ accepted' : 'pending review'}
             </span>
           </div>
-          <SweepDiff lines={LINES} accepted={accepted} style={{ padding: '8px 0' }} />
+          <CodeDiff lines={LINES} accepted={accepted} style={{ padding: '8px 0' }} />
         </div>
       }
       controls={
@@ -49,9 +49,9 @@ export default function SweepDiffPage() {
           <PillButton active={accepted} onClick={() => setAccepted(true)}>Accept</PillButton>
         </>
       }
-      usage={`import SweepDiff from './components/SweepDiff';
+      usage={`import CodeDiff from './components/CodeDiff';
 
-<SweepDiff
+<CodeDiff
   accepted={change.status === 'accepted'}
   lines={[
     { type: 'context', content: 'const retries =' },

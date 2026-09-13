@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { getComponent } from '../../registry';
-import RewindRegenerate from '../../components/RewindRegenerate';
+import Regenerate from '../../components/Regenerate';
 import DocPage, { PillButton } from '../../lib/DocPage';
 
-const entry = getComponent('rewind-regenerate');
+const entry = getComponent('regenerate');
 
 const ANSWERS = [
   'The flake is a timing issue: the test asserts before the debounce fires. Wrap the assertion in waitFor, or advance fake timers by 300ms before asserting.',
@@ -19,7 +19,7 @@ const props = [
   { name: 'onPhase', type: '(phase) => void', desc: "Called with 'rewinding' | 'typing' | 'idle'." },
 ];
 
-export default function RewindRegeneratePage() {
+export default function RegeneratePage() {
   const [i, setI] = useState(0);
   const [phase, setPhase] = useState('idle');
 
@@ -36,7 +36,7 @@ export default function RewindRegeneratePage() {
               <span>{phase}</span>
             </div>
             <div className="text-[16px] leading-[1.7] text-stone-800">
-              <RewindRegenerate text={ANSWERS[i]} onPhase={setPhase} />
+              <Regenerate text={ANSWERS[i]} onPhase={setPhase} />
             </div>
           </div>
         </div>
@@ -49,10 +49,10 @@ export default function RewindRegeneratePage() {
           {phase === 'idle' ? '↻ Regenerate' : phase === 'rewinding' ? 'rewinding…' : 'writing…'}
         </PillButton>
       }
-      usage={`import RewindRegenerate from './components/RewindRegenerate';
+      usage={`import Regenerate from './components/Regenerate';
 
 // change \`text\` and the old answer rewinds before the new one types in
-<RewindRegenerate text={answer} onPhase={setPhase} />`}
+<Regenerate text={answer} onPhase={setPhase} />`}
       props={props}
     />
   );

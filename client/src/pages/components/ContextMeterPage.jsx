@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { getComponent } from '../../registry';
-import LiquidContextMeter from '../../components/LiquidContextMeter';
+import ContextMeter from '../../components/ContextMeter';
 import DocPage, { PillButton } from '../../lib/DocPage';
 
-const entry = getComponent('liquid-context-meter');
+const entry = getComponent('context-meter');
 const LIMIT = 200_000;
 
 const props = [
@@ -30,7 +30,7 @@ function Composer({ value, used }) {
           </span>
         </div>
         <div className="flex shrink-0 items-center gap-4">
-          <LiquidContextMeter value={value} label />
+          <ContextMeter value={value} label />
           <span className="flex h-8 w-8 items-center justify-center rounded-full bg-ink text-white">↑</span>
         </div>
       </div>
@@ -38,7 +38,7 @@ function Composer({ value, used }) {
   );
 }
 
-export default function LiquidContextMeterPage() {
+export default function ContextMeterPage() {
   const [used, setUsed] = useState(58_000);
   const [orientation, setOrientation] = useState('horizontal');
   const value = Math.min(1, used / LIMIT);
@@ -55,7 +55,7 @@ export default function LiquidContextMeterPage() {
             <Composer value={value} used={used} />
           ) : (
             <div className="flex items-center gap-10">
-              <LiquidContextMeter value={value} orientation="vertical" length={200} thickness={44} />
+              <ContextMeter value={value} orientation="vertical" length={200} thickness={44} />
               <div className="font-mono text-[12px] leading-6 text-stone-500">
                 <div className="text-[28px] leading-none tracking-tight text-ink">
                   {Math.round(value * 100)}%
@@ -83,13 +83,13 @@ export default function LiquidContextMeterPage() {
           <PillButton onClick={() => setUsed(12_000)}>reset</PillButton>
         </>
       }
-      usage={`import LiquidContextMeter from './components/LiquidContextMeter';
+      usage={`import ContextMeter from './components/ContextMeter';
 
 // in a composer footer
-<LiquidContextMeter value={tokensUsed / contextLimit} label />
+<ContextMeter value={tokensUsed / contextLimit} label />
 
 // standalone tube
-<LiquidContextMeter value={0.62} orientation="vertical" />`}
+<ContextMeter value={0.62} orientation="vertical" />`}
       props={props}
     />
   );

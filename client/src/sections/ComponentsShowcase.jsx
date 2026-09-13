@@ -14,12 +14,12 @@ export default function ComponentsShowcase() {
             eyebrow="The library"
             title={
               <>
-                Six moments. <em className="italic">One file each.</em>
+                Real AI moments. <em className="italic">One file each.</em>
               </>
             }
             body={
               built === registry.length
-                ? `All ${built} built and ready. Every one is a single file you paste into your own repo — canvas, CSS and SVG filters, no dependencies.`
+                ? `Every one is a single file you paste into your own repo — canvas and CSS, no dependencies. Same size and place as the flat version it replaces.`
                 : `${built} built, ${registry.length - built} on the roadmap. Every one is a single component you paste into your own repo.`
             }
           />

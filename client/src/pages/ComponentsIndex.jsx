@@ -1,5 +1,6 @@
 import { registry } from '../registry';
 import ComponentCard from '../lib/ComponentCard';
+import useTitle from '../lib/useTitle';
 
 function Group({ title, items }) {
   if (items.length === 0) return null;
@@ -21,6 +22,7 @@ function Group({ title, items }) {
 }
 
 export default function ComponentsIndex() {
+  useTitle('Components');
   const available = registry.filter((c) => c.status === 'available');
   const upcoming = registry.filter((c) => c.status !== 'available');
 

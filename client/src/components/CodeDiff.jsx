@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 
 /**
- * SweepDiff
+ * CodeDiff
  *
  * A standard green/red code diff — until it's accepted. Then a bright beam
  * scans down the block: as it passes, every removed line's characters
@@ -18,7 +18,7 @@ import { useEffect } from 'react';
  *  - className / style: passed to the wrapper.
  */
 
-const STYLE_ID = 'pulseui-sweep-diff';
+const STYLE_ID = 'pulseui-code-diff';
 const CSS = `
 .pui-diff {
   position: relative;
@@ -145,7 +145,7 @@ function useInjectedStyle() {
   }, []);
 }
 
-export default function SweepDiff({
+export default function CodeDiff({
   lines = [],
   accepted = false,
   lineMs = 110,

@@ -1,12 +1,12 @@
 import { Link, NavLink, Outlet } from 'react-router-dom';
+import Logo from '../lib/Logo';
+
+const AUTHOR_GITHUB = 'https://github.com/Goutamchoudhary907';
 
 function Wordmark() {
   return (
-    <Link to="/" className="flex items-center gap-2.5 group">
-      <span className="relative flex h-2.5 w-2.5">
-        <span className="absolute inline-flex h-full w-full rounded-full bg-violet-500 opacity-60 animate-ping" />
-        <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-violet-600" />
-      </span>
+    <Link to="/" className="pui-logo-link flex items-center gap-2 group">
+      <Logo size={26} />
       <span className="font-display text-[22px] leading-none tracking-tight text-ink">
         Pulseui
       </span>
@@ -31,12 +31,6 @@ export default function SiteLayout() {
             <NavLink to="/components" className={navClass}>
               Components
             </NavLink>
-            <a
-              href="https://github.com"
-              className="hidden sm:inline-flex items-center rounded-full border border-stone-200 bg-white px-3.5 py-1.5 text-sm text-ink shadow-[0_1px_0_rgba(0,0,0,0.03)] hover:border-stone-300 transition-colors"
-            >
-              GitHub
-            </a>
           </nav>
         </div>
       </header>
@@ -46,7 +40,7 @@ export default function SiteLayout() {
       </main>
 
       <footer className="border-t border-stone-200">
-        <div className="max-w-6xl mx-auto px-6 py-14 grid gap-10 sm:grid-cols-[1.4fr_1fr_1fr]">
+        <div className="max-w-6xl mx-auto px-6 py-14 grid gap-10 sm:grid-cols-[1.4fr_1fr]">
           <div>
             <Wordmark />
             <p className="mt-4 text-sm text-stone-500 max-w-xs leading-relaxed">
@@ -69,28 +63,16 @@ export default function SiteLayout() {
               </li>
             </ul>
           </div>
-          <div>
-            <div className="font-mono text-[11px] uppercase tracking-[0.18em] text-stone-400">
-              Elsewhere
-            </div>
-            <ul className="mt-4 space-y-2.5 text-sm">
-              <li>
-                <a href="https://github.com" className="text-stone-600 hover:text-ink">
-                  GitHub
-                </a>
-              </li>
-              <li>
-                <a href="https://21st.dev" className="text-stone-600 hover:text-ink">
-                  21st.dev
-                </a>
-              </li>
-            </ul>
-          </div>
         </div>
         <div className="border-t border-stone-200/70">
           <div className="max-w-6xl mx-auto px-6 py-5 flex items-center justify-between text-xs text-stone-400">
             <span>© {new Date().getFullYear()} Pulseui</span>
-            <span className="font-mono">v0.1 · early</span>
+            <span>
+              Made with <span aria-label="love" className="text-red-500">♥</span> by{' '}
+              <a href={AUTHOR_GITHUB} className="text-stone-600 hover:text-ink">
+                Goutam
+              </a>
+            </span>
           </div>
         </div>
       </footer>

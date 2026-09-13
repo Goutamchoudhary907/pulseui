@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 
 /**
- * SwarmStatus
+ * AgentStatus
  *
  * Parallel agents as flocks of light around a progress ring. Each running
  * agent is a small boid flock — real cohesion, alignment, separation —
@@ -23,7 +23,7 @@ import { useEffect, useRef } from 'react';
 const DEFAULT_PALETTE = ['#7c3aed', '#0ea5e9', '#f59e0b', '#10b981', '#ec4899', '#6366f1'];
 const FONT = '500 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
 
-export default function SwarmStatus({
+export default function AgentStatus({
   agents = [],
   width = 360,
   height = 240,

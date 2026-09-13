@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import CodeBlock from './CodeBlock';
 import StatusBadge from './StatusBadge';
+import useTitle from './useTitle';
 
 /**
  * Shared shell for every component docs page:
@@ -23,6 +24,7 @@ export default function DocPage({
   props = [],
   previewClassName = 'min-h-[380px]',
 }) {
+  useTitle(entry.name);
   const fileName = `${entry.file}.jsx`;
   const lines = entry.source.split('\n').length;
 
@@ -41,7 +43,7 @@ export default function DocPage({
             <h1 className="font-display text-[44px] leading-none tracking-[-0.015em] text-ink sm:text-[56px]">
               {entry.name}
             </h1>
-            <StatusBadge status={entry.status} />
+            {entry.status !== 'available' && <StatusBadge status={entry.status} />}
           </div>
           <p className="mt-5 text-[16.5px] leading-relaxed text-stone-600">
             {entry.description}

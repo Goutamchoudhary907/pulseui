@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { getComponent } from '../../registry';
-import SwarmStatus from '../../components/SwarmStatus';
+import AgentStatus from '../../components/AgentStatus';
 import DocPage, { PillButton } from '../../lib/DocPage';
 
-const entry = getComponent('swarm-status');
+const entry = getComponent('agent-status');
 
 const NAMES = ['search docs', 'read files', 'run tests', 'write summary', 'lint'];
 const initial = () => NAMES.map((label, i) => ({ id: `a${i}`, label, status: 'running' }));
@@ -17,7 +17,7 @@ const props = [
   { name: 'showLabels', type: 'boolean', def: 'true', desc: 'Draw agent labels beside their flocks.' },
 ];
 
-export default function SwarmStatusPage() {
+export default function AgentStatusPage() {
   const [agents, setAgents] = useState(initial);
   const [auto, setAuto] = useState(false);
 
@@ -45,7 +45,7 @@ export default function SwarmStatusPage() {
       previewClassName="min-h-[460px]"
       preview={
         <div className="pb-8 pt-2">
-          <SwarmStatus agents={agents} width={560} height={340} />
+          <AgentStatus agents={agents} width={560} height={340} />
         </div>
       }
       controls={
@@ -59,9 +59,9 @@ export default function SwarmStatusPage() {
           <PillButton onClick={reset}>reset</PillButton>
         </>
       }
-      usage={`import SwarmStatus from './components/SwarmStatus';
+      usage={`import AgentStatus from './components/AgentStatus';
 
-<SwarmStatus
+<AgentStatus
   agents={tasks.map((t) => ({ id: t.id, label: t.name, status: t.status }))}
 />`}
       props={props}

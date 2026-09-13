@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 
 /**
- * RewindRegenerate
+ * Regenerate
  *
  * Give it an answer. Give it a different answer. Instead of the old text
  * vanishing and the new one appearing, the old text is *rewound* — pulled
@@ -19,7 +19,7 @@ import { useEffect, useRef, useState } from 'react';
  *  - className / style: passed to the wrapper.
  */
 
-const STYLE_ID = 'pulseui-rewind-regenerate';
+const STYLE_ID = 'pulseui-regenerate';
 const CSS = `
 .pui-rewind {
   position: relative;
@@ -108,7 +108,7 @@ function useInjectedStyle() {
   }, []);
 }
 
-export default function RewindRegenerate({
+export default function Regenerate({
   text = '',
   typeMs = 14,
   rewindMs = 16,

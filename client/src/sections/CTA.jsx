@@ -23,12 +23,6 @@ export default function CTA() {
               >
                 Browse components
               </Link>
-              <a
-                href="https://github.com"
-                className="inline-flex items-center rounded-full border border-stone-200 bg-white px-6 py-3 text-sm text-ink hover:border-stone-300 transition-colors"
-              >
-                Star on GitHub
-              </a>
             </div>
           </div>
         </div>

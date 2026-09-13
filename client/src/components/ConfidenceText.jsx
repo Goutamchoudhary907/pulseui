@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 
 /**
- * ConfidenceShimmer
+ * ConfidenceText
  *
  * Low-confidence tokens get a faint chromatic flicker — a red/cyan split
  * that jitters like a badly-tracked VHS frame — instead of a hedge badge
@@ -18,7 +18,7 @@ import { useEffect } from 'react';
  *  - className / style: passed to the wrapper.
  */
 
-const STYLE_ID = 'pulseui-confidence-shimmer';
+const STYLE_ID = 'pulseui-confidence-text';
 const CSS = `
 .pui-shimmer {
   position: relative;
@@ -83,7 +83,7 @@ function useInjectedStyle() {
   }, []);
 }
 
-export default function ConfidenceShimmer({
+export default function ConfidenceText({
   tokens = [],
   threshold = 0.6,
   showScores = true,
