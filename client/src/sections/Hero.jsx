@@ -28,7 +28,7 @@ export default function Hero() {
 
           <p className="mt-6 max-w-lg text-[17px] leading-relaxed text-stone-600">
             Every AI product ships the same flat "thinking" spinner and plain
-            progress bar. Pulseui gives those same moments an organic,
+            progress bar. Pulse UI gives those same moments an organic,
             physically-metaphored treatment — the kind that stops a scroll.
           </p>
 

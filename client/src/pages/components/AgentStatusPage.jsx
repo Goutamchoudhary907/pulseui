@@ -6,37 +6,60 @@ import DocPage, { PillButton } from '../../lib/DocPage';
 const entry = getComponent('agent-status');
 
 const NAMES = ['search docs', 'read files', 'run tests', 'write summary', 'lint'];
-const initial = () => NAMES.map((label, i) => ({ id: `a${i}`, label, status: 'running' }));
+const RATES = [0.011, 0.016, 0.007, 0.013, 0.02];
 
 const props = [
-  { name: 'agents', type: "{ id, label?, status: 'running'|'done'|'error' }[]", desc: 'One flock per agent. Labels ride beside running flocks. Add or remove entries at any time.' },
+  { name: 'agents', type: "{ id, label?, status: 'running'|'done'|'error', progress? }[]", desc: 'One flock per agent. A new running agent is dispatched from the hub; done sends it home; error breaks it up. progress (0..1) fills the ring around its flock.' },
   { name: 'width / height', type: 'number', def: '360 / 240', desc: 'Canvas size in px.' },
   { name: 'boidsPerAgent', type: 'number', def: '8', desc: 'Flock size per agent.' },
   { name: 'palette', type: 'string[]', def: '6 hues', desc: 'One colour per agent, cycles if there are more agents.' },
-  { name: 'errorColor', type: 'string', def: "'#ef4444'", desc: "Colour for agents in 'error' — their flock turns red and drifts out of orbit." },
-  { name: 'showLabels', type: 'boolean', def: 'true', desc: 'Draw agent labels beside their flocks.' },
+  { name: 'errorColor', type: 'string', def: "'#ef4444'", desc: "Colour for agents in 'error'." },
+  { name: 'showLabels', type: 'boolean', def: 'true', desc: 'Draw agent labels (and progress) beside their flocks.' },
 ];
 
 export default function AgentStatusPage() {
-  const [agents, setAgents] = useState(initial);
-  const [auto, setAuto] = useState(false);
+  const [agents, setAgents] = useState([]);
+  const [run, setRun] = useState(0);
 
-  const setNext = (status) =>
+  // dispatch: add the next agent
+  const dispatch = () =>
     setAgents((list) => {
-      const i = list.findIndex((a) => a.status === 'running');
-      return i < 0 ? list : list.map((a, j) => (j === i ? { ...a, status } : a));
+      const i = list.length;
+      if (i >= NAMES.length) return list;
+      return [...list, { id: `a${i}`, label: NAMES[i], status: 'running', progress: 0 }];
     });
 
-  // auto-run: finish one agent per second while any are still running
-  const anyRunning = agents.some((a) => a.status === 'running');
-  const running = auto && anyRunning;
+  // auto-run: dispatch one every 350ms, then let progress carry them home
   useEffect(() => {
-    if (!running) return;
-    const id = setTimeout(() => setNext('done'), 1000);
-    return () => clearTimeout(id);
-  }, [running, agents]);
+    if (!run) return;
+    const ids = [];
+    for (let i = 0; i < NAMES.length; i++) ids.push(setTimeout(dispatch, 200 + i * 350));
+    return () => ids.forEach(clearTimeout);
+  }, [run]);
 
-  const reset = () => { setAuto(false); setAgents(initial()); };
+  const anyRunning = agents.some((a) => a.status === 'running');
+  useEffect(() => {
+    if (!anyRunning) return;
+    const id = setInterval(() => {
+      setAgents((list) =>
+        list.map((a, i) => {
+          if (a.status !== 'running') return a;
+          const p = Math.min(1, (a.progress ?? 0) + RATES[i % RATES.length] * (0.6 + Math.random() * 0.8));
+          return p >= 1 ? { ...a, progress: 1, status: 'done' } : { ...a, progress: p };
+        }),
+      );
+    }, 80);
+    return () => clearInterval(id);
+  }, [anyRunning]);
+
+  const auto = run > 0 && (agents.length < NAMES.length || anyRunning);
+
+  const failOne = () =>
+    setAgents((list) => {
+      const i = list.findIndex((a) => a.status === 'running');
+      return i < 0 ? list : list.map((a, j) => (j === i ? { ...a, status: 'error' } : a));
+    });
+  const reset = () => { setRun(0); setAgents([]); };
 
   return (
     <DocPage
@@ -50,19 +73,24 @@ export default function AgentStatusPage() {
       }
       controls={
         <>
-          <PillButton active={running} onClick={() => setAuto((v) => !v)}>
-            {running ? 'running…' : '▶ run all'}
+          <PillButton active={auto} onClick={() => { setAgents([]); setRun((r) => r + 1); }}>
+            {auto ? 'running…' : '▶ run all'}
           </PillButton>
           <span className="mx-1 h-5 w-px bg-stone-200" />
-          <PillButton onClick={() => setNext('done')}>finish next</PillButton>
-          <PillButton onClick={() => setNext('error')}>fail one</PillButton>
+          <PillButton onClick={dispatch}>dispatch one</PillButton>
+          <PillButton onClick={failOne}>fail one</PillButton>
           <PillButton onClick={reset}>reset</PillButton>
         </>
       }
       usage={`import AgentStatus from './components/AgentStatus';
 
 <AgentStatus
-  agents={tasks.map((t) => ({ id: t.id, label: t.name, status: t.status }))}
+  agents={tasks.map((t) => ({
+    id: t.id,
+    label: t.name,
+    status: t.status,        // 'running' | 'done' | 'error'
+    progress: t.progress,    // 0..1, optional
+  }))}
 />`}
       props={props}
     />

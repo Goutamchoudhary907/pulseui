@@ -31,23 +31,20 @@ export default function ComponentCard({ entry }) {
           : '')
       }
     >
-      <div className="bg-dots flex h-40 items-center justify-center rounded-2xl border border-stone-100 bg-stone-50/60">
+      <div className="bg-dots flex h-56 items-center justify-center overflow-hidden rounded-2xl border border-stone-100 bg-stone-50/60 sm:h-60">
         <Preview entry={entry} />
       </div>
-      <div className="flex flex-1 flex-col px-4 pb-4 pt-5">
-        <div className="flex items-start justify-between gap-3">
+      <div className="flex items-center justify-between gap-4 px-4 pb-3 pt-4">
+        <div className="min-w-0">
           <h3 className="font-display text-[22px] leading-none tracking-tight text-ink">
             {entry.name}
           </h3>
-          {!available && <StatusBadge status={entry.status} />}
+          <p className="mt-1.5 truncate text-sm text-stone-500">{entry.tagline}</p>
         </div>
-        <p className="mt-3 text-sm leading-relaxed text-stone-600">
-          {entry.description}
-        </p>
-        {available && (
-          <div className="mt-auto pt-5 text-sm text-violet-700 transition-transform group-hover:translate-x-0.5">
-            Open →
-          </div>
+        {available ? (
+          <span className="shrink-0 text-sm text-violet-700 transition-transform group-hover:translate-x-0.5">Open →</span>
+        ) : (
+          <StatusBadge status={entry.status} />
         )}
       </div>
     </div>

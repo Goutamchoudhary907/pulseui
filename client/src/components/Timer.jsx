@@ -17,7 +17,8 @@ import { useEffect, useRef, useState } from 'react';
  * every tick flashes, a ring pulses out, a check settles in the middle and
  * `onComplete` fires.
  *
- * Zero dependencies — plain <canvas> + requestAnimationFrame.
+ * Zero dependencies — plain <canvas> + requestAnimationFrame. The loop
+ * sleeps whenever nothing is moving (stopped, done, or at 0%).
  *
  * Props:
  *  - progress (0..1 | undefined): fraction done. Undefined = elapsed mode.
@@ -49,13 +50,15 @@ export default function Timer({
   const onCompleteRef = useRef(onComplete);
   // p/v: spring on progress. head/spin: sweep angle and its speed.
   // flash: -1 idle, else 0..1 completion pulse. changedAt: last progress change.
-  const s = useRef({ p: 0, v: 0, head: 0, spin: 1, flash: -1, done: false, changedAt: 0, t: 0 });
+  const s = useRef({ p: 0, v: 0, head: 0, spin: 1, flash: -1, done: false, changedAt: 0, t: 0, last: 0 });
+  const kickRef = useRef(() => {});
 
   useEffect(() => {
     onCompleteRef.current = onComplete;
   }, [onComplete]);
   useEffect(() => {
     runningRef.current = running;
+    kickRef.current();
   }, [running]);
   useEffect(() => {
     const st = s.current;
@@ -66,6 +69,7 @@ export default function Timer({
       st.done = false;
       st.flash = -1;
     }
+    kickRef.current();
   }, [progress]);
 
   // ---- the clock (label) --------------------------------------------------
@@ -138,8 +142,9 @@ export default function Timer({
       ctx.fill();
     }
 
-    function tick() {
-      const dt = 1 / 60;
+    function tick(now) {
+      const dt = Math.min(0.05, Math.max(0.001, (now - st.last) / 1000));
+      st.last = now;
       st.t += dt;
       const prog = progressRef.current;
       const det = prog != null;
@@ -168,6 +173,11 @@ export default function Timer({
         st.flash += dt * 1.4;
         if (st.flash > 1) st.flash = -1;
       }
+
+      // anything still moving? otherwise this is the last frame until a prop changes
+      const moving = det
+        ? st.flash >= 0 || Math.abs(st.v) > 0.0004 || Math.abs(Math.min(1, prog) - st.p) > 0.002 || (run && st.p > 0.005 && st.p < 0.995)
+        : run || st.spin > 0.02;
 
       const stalled = det && run && st.p < 0.99 && st.t - st.changedAt > 1.8;
       const breathe = 0.5 + 0.5 * Math.sin(st.t * (stalled ? 2.2 : 6));
@@ -229,11 +239,20 @@ export default function Timer({
         ctx.stroke();
       }
 
-      rafRef.current = requestAnimationFrame(tick);
+      rafRef.current = moving && !(reduce && det) ? requestAnimationFrame(tick) : 0;
     }
 
-    rafRef.current = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(rafRef.current);
+    const kick = () => {
+      if (rafRef.current) return;
+      st.last = performance.now();
+      rafRef.current = requestAnimationFrame(tick);
+    };
+    kickRef.current = kick;
+    kick();
+    return () => {
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = 0;
+    };
   }, [size, color]);
 
   const text = label === true ? formatTime(elapsed) : label;

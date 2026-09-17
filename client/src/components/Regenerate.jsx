@@ -1,100 +1,84 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 
 /**
  * Regenerate
  *
- * Give it an answer. Give it a different answer. Instead of the old text
- * vanishing and the new one appearing, the old text is *rewound* — pulled
- * back from the end at accelerating speed with film judder, scanlines and
- * scrolling sprocket holes — and only then does the new answer type in.
+ * Hit "regenerate" and the old answer is *rewound* like tape: pulled back
+ * from the end into a tape head at accelerating speed, the characters at
+ * the head smeared with motion, sprocket holes rolling past, a counter
+ * spinning down. When the tape runs out the head flashes once — the cue —
+ * and only then does the new answer come in.
  *
- * Zero dependencies — spans + CSS keyframes injected once.
+ * It composes with a streaming answer. Bump `attempt` and it rewinds
+ * whatever `text` was on screen; once that's gone it renders `children`
+ * (e.g. <StreamingText> fed by your new request) or, with no children,
+ * types `text` in itself.
+ *
+ * Zero dependencies — spans + a stylesheet injected once. Nothing animates
+ * while idle.
  *
  * Props:
- *  - text (string): the current answer. Change it to trigger a rewind.
- *  - typeMs (number): ms per character while typing in. Default 14.
- *  - rewindMs (number): ms per rewind frame. Default 16.
+ *  - text (string): the current answer. May grow while streaming.
+ *  - attempt (number): bump it to regenerate — rewinds what's on screen.
+ *  - children: the live answer to render after the rewind (optional).
+ *  - typeMs (number): ms per character when typing `text` in (no children).
+ *      Default 14. 0 shows the new text immediately.
+ *  - rewindMs (number): ms per rewind frame. Default 30.
  *  - cursor (bool): show a block cursor while typing. Default true.
- *  - onPhase (fn): called with 'rewinding' | 'typing' | 'idle'.
+ *  - onPhase (fn): called with 'rewinding' | 'writing' | 'idle'.
  *  - className / style: passed to the wrapper.
  */
 
 const STYLE_ID = 'pulseui-regenerate';
 const CSS = `
-.pui-rewind {
-  position: relative;
-  display: block;
-  white-space: pre-wrap;
-  overflow: hidden;
-}
+.pui-rewind { position: relative; display: block; white-space: pre-wrap; }
 .pui-rewind-text { position: relative; display: inline; }
 .pui-rewind-cursor {
+  display: inline-block; width: 0.55em; height: 1.05em; margin-left: 1px; vertical-align: -0.15em;
+  background: currentColor; opacity: 0.8; animation: pui-rw-blink 0.9s steps(1, end) infinite;
+}
+/* --- rewinding: the whole passage judders, the tail smears into the head --- */
+.pui-rewind.is-rewinding .pui-rewind-text { animation: pui-rw-judder 90ms steps(2, end) infinite; }
+.pui-rewind-tail { display: inline; }
+.pui-rewind-tail span {
   display: inline-block;
-  width: 0.55em;
-  height: 1.05em;
-  margin-left: 1px;
-  vertical-align: -0.15em;
-  background: currentColor;
-  opacity: 0.8;
-  animation: pui-rw-blink 0.9s steps(1, end) infinite;
+  filter: blur(var(--b));
+  opacity: var(--o);
+  transform: translateX(var(--x)) scaleX(1.45) skewX(-8deg);
+  transform-origin: right center;
 }
-/* --- rewinding state --- */
-.pui-rewind.is-rewinding .pui-rewind-text {
-  animation: pui-rw-judder 110ms steps(2, end) infinite;
-  text-shadow: -1.5px 0 rgba(255, 45, 120, 0.55), 1.5px 0 rgba(0, 200, 255, 0.55);
-  filter: contrast(1.15) brightness(1.05);
+.pui-rewind-head {
+  display: inline-block; width: 2px; height: 1.1em; margin-left: 2px; vertical-align: -0.18em;
+  background: currentColor; border-radius: 1px;
+  box-shadow: 0 0 6px currentColor, 0 0 14px currentColor;
+  animation: pui-rw-head 120ms ease-in-out infinite alternate;
 }
-.pui-rewind.is-rewinding::before {
-  /* scanlines + a rolling brightness band */
-  content: '';
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background:
-    repeating-linear-gradient(to bottom, rgba(0,0,0,0.07) 0 1px, transparent 1px 3px),
-    linear-gradient(to bottom, transparent 0%, rgba(255,255,255,0.35) 50%, transparent 100%);
-  background-size: 100% 100%, 100% 120px;
-  animation: pui-rw-roll 0.55s linear infinite;
-  mix-blend-mode: multiply;
-}
+/* sprocket holes rolling down both edges */
 .pui-rewind.is-rewinding::after {
-  /* sprocket holes on both edges, scrolling upward */
-  content: '';
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
+  content: ''; position: absolute; inset: -6px -14px; pointer-events: none;
   background:
-    radial-gradient(circle at 5px 50%, rgba(28,25,23,0.35) 2px, transparent 2.6px),
-    radial-gradient(circle at calc(100% - 5px) 50%, rgba(28,25,23,0.35) 2px, transparent 2.6px);
+    radial-gradient(circle at 5px 50%, rgba(28,25,23,0.22) 2px, transparent 2.6px),
+    radial-gradient(circle at calc(100% - 5px) 50%, rgba(28,25,23,0.22) 2px, transparent 2.6px);
   background-size: 100% 12px;
-  animation: pui-rw-sprocket 0.28s linear infinite;
+  animation: pui-rw-sprocket 0.24s linear infinite;
 }
 .pui-rewind-badge {
-  position: absolute;
-  top: 0;
-  right: 12px;
-  font: 500 10px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
-  letter-spacing: 0.14em;
-  color: #78716c;
-  opacity: 0;
-  transition: opacity 0.15s;
+  position: absolute; top: -2px; right: 0;
+  font: 500 10px/1 ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: 0.12em;
+  color: #78716c; font-variant-numeric: tabular-nums; opacity: 0; transition: opacity 0.15s;
 }
-.pui-rewind.is-rewinding .pui-rewind-badge {
-  opacity: 1;
-  animation: pui-rw-blink 0.4s steps(1, end) infinite;
-}
-@keyframes pui-rw-judder {
-  0%   { transform: translateY(0); }
-  50%  { transform: translateY(-1.5px) translateX(0.5px); }
-  100% { transform: translateY(1px); }
-}
-@keyframes pui-rw-roll     { to { background-position: 0 0, 0 -120px; } }
+.pui-rewind.is-rewinding .pui-rewind-badge { opacity: 1; }
+.pui-rewind-badge b { font-weight: 500; animation: pui-rw-blink 0.5s steps(1, end) infinite; }
+/* the cue: tape ran out, head flashes once before the new take */
+.pui-rewind.is-cued .pui-rewind-head { animation: pui-rw-cue 300ms ease-out both; }
+@keyframes pui-rw-judder { 0% { transform: translateY(0); } 50% { transform: translateY(-0.7px); } 100% { transform: translateY(0.5px); } }
+@keyframes pui-rw-head { from { opacity: 0.7; } to { opacity: 1; } }
+@keyframes pui-rw-cue { 0% { opacity: 1; transform: scaleY(1.7); } 100% { opacity: 0; transform: scaleY(0.3); } }
 @keyframes pui-rw-sprocket { to { background-position: 0 -12px; } }
-@keyframes pui-rw-blink    { 50% { opacity: 0; } }
+@keyframes pui-rw-blink { 50% { opacity: 0; } }
 @media (prefers-reduced-motion: reduce) {
-  .pui-rewind.is-rewinding .pui-rewind-text,
-  .pui-rewind.is-rewinding::before,
-  .pui-rewind.is-rewinding::after { animation: none; }
+  .pui-rewind.is-rewinding .pui-rewind-text, .pui-rewind.is-rewinding::after, .pui-rewind-head, .pui-rewind-badge b { animation: none; }
+  .pui-rewind-tail span { filter: none; transform: none; }
 }
 `;
 
@@ -108,31 +92,46 @@ function useInjectedStyle() {
   }, []);
 }
 
+const TAIL = 7;
+
 export default function Regenerate({
   text = '',
+  attempt = 0,
+  children,
   typeMs = 14,
-  rewindMs = 16,
+  rewindMs = 30,
   cursor = true,
   onPhase,
   className,
   style,
 }) {
   useInjectedStyle();
-  const [shown, setShown] = useState(text);
   const [phase, setPhase] = useState('idle');
-  const targetRef = useRef(text);
+  const [shown, setShown] = useState('');         // text on screen while rewinding / typing
+  const [cued, setCued] = useState(false);
+  const prevTextRef = useRef(text);               // what was on screen before this render
+  const textRef = useRef(text);
+  textRef.current = text;
+  const hasChildren = useRef(false);
+  hasChildren.current = children != null;
+  const attemptRef = useRef(attempt);
   const timerRef = useRef(null);
   const phaseRef = useRef(onPhase);
   phaseRef.current = onPhase;
 
-  // A new `text` = new target. If something is on screen, rewind it first.
-  useEffect(() => {
-    if (text === targetRef.current) return;
-    targetRef.current = text;
+  // bump `attempt` → rewind whatever was on screen (layout effect so the
+  // frame never paints the new, empty answer before the rewind starts)
+  useLayoutEffect(() => {
+    if (attempt === attemptRef.current) return;
+    attemptRef.current = attempt;
+    const was = prevTextRef.current;
     clearTimeout(timerRef.current);
-    setPhase((p) => (p === 'idle' && shown.length === 0 ? 'typing' : 'rewinding'));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [text]);
+    setShown(was);
+    setPhase(was ? 'rewinding' : hasChildren.current ? 'idle' : 'writing');
+  }, [attempt]);
+  useLayoutEffect(() => {
+    prevTextRef.current = text;
+  });
 
   useEffect(() => {
     phaseRef.current?.(phase);
@@ -142,24 +141,29 @@ export default function Regenerate({
       let len = shown.length;
       let step = 1;
       const frame = () => {
-        // accelerate: each frame removes a slightly bigger chunk
-        step = Math.min(step * 1.18 + 0.4, Math.max(2, len * 0.12));
+        // accelerate, but the last stretch drags like tape reaching the leader
+        step = Math.min(step * 1.1 + 0.2, Math.max(2, len * 0.12));
         len = Math.max(0, len - Math.round(step));
         setShown((s) => s.slice(0, len));
         if (len > 0) timerRef.current = setTimeout(frame, rewindMs);
-        else timerRef.current = setTimeout(() => setPhase('typing'), 220);
+        else {
+          setCued(true);
+          timerRef.current = setTimeout(() => {
+            setCued(false);
+            setPhase(hasChildren.current || typeMs <= 0 ? 'idle' : 'writing');
+          }, 320);
+        }
       };
       timerRef.current = setTimeout(frame, rewindMs);
     }
 
-    if (phase === 'typing') {
-      const target = targetRef.current;
+    if (phase === 'writing') {
       let i = 0;
       const frame = () => {
+        const target = textRef.current;
         i += 1;
         setShown(target.slice(0, i));
         if (i < target.length) {
-          // small pause after punctuation so it reads like real typing
           const ch = target[i - 1];
           const pause = /[.!?]/.test(ch) ? typeMs * 9 : /[,;:]/.test(ch) ? typeMs * 4 : typeMs;
           timerRef.current = setTimeout(frame, pause);
@@ -174,16 +178,44 @@ export default function Regenerate({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase]);
 
+  const rewinding = phase === 'rewinding';
+  const head = rewinding ? shown.slice(0, Math.max(0, shown.length - TAIL)) : shown;
+  const tail = rewinding ? shown.slice(-TAIL) : '';
+
   return (
     <span
-      className={`pui-rewind ${phase === 'rewinding' ? 'is-rewinding' : ''} ${className || ''}`}
+      className={`pui-rewind${rewinding ? ' is-rewinding' : ''}${cued ? ' is-cued' : ''}${className ? ` ${className}` : ''}`}
       style={style}
       aria-live="polite"
       aria-busy={phase !== 'idle'}
     >
-      <span className="pui-rewind-badge">◀◀ REW</span>
-      <span className="pui-rewind-text">{shown}</span>
-      {cursor && phase === 'typing' && <span className="pui-rewind-cursor" aria-hidden />}
+      <span className="pui-rewind-badge" aria-hidden="true">
+        <b>◀◀</b> REW {String(rewinding ? shown.length : 0).padStart(4, '0')}
+      </span>
+      {phase === 'idle' && children != null ? (
+        children
+      ) : (
+        <span className="pui-rewind-text">
+          {phase === 'idle' ? text : head}
+          {rewinding && (
+            <span className="pui-rewind-tail" aria-hidden="true">
+              {[...tail].map((ch, i) => {
+                const t = (i + 1) / tail.length;
+                return (
+                  <span
+                    key={i}
+                    style={{ '--b': `${(t * 2.4).toFixed(2)}px`, '--o': (1 - t * 0.7).toFixed(2), '--x': `${(t * 3).toFixed(1)}px` }}
+                  >
+                    {ch}
+                  </span>
+                );
+              })}
+            </span>
+          )}
+          {(rewinding || cued) && <span className="pui-rewind-head" aria-hidden="true" />}
+          {cursor && phase === 'writing' && <span className="pui-rewind-cursor" aria-hidden="true" />}
+        </span>
+      )}
     </span>
   );
 }

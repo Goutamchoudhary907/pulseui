@@ -3,17 +3,20 @@ import { useEffect, useRef } from 'react';
 /**
  * AgentStatus
  *
- * Parallel agents as flocks of light around a progress ring. Each running
- * agent is a small boid flock — real cohesion, alignment, separation —
- * orbiting the hub with a comet trail and its label riding alongside.
- * When an agent finishes, its flock streams into the core and the ring's
- * arc advances. When every agent is done, the core flares into a check.
- * A failed agent's flock turns red and drifts out of orbit.
+ * Parallel agents as flocks of light. When an agent starts, its flock is
+ * *dispatched* — it launches out of the hub in a streak and settles into
+ * orbit. While it works, a ring around the flock fills with its progress
+ * (or spins if you don't know it). When it finishes, the flock streams
+ * back into the hub and is absorbed with a flash; the hub's arc advances.
+ * When every agent is home, the core flares into a check. A failed
+ * agent's flock turns red, breaks formation and drifts out.
  *
- * Zero dependencies — plain <canvas> + requestAnimationFrame.
+ * Zero dependencies — plain <canvas> + requestAnimationFrame; the loop
+ * sleeps once everything is home.
  *
  * Props:
- *  - agents ([{ id, label?, status: 'running' | 'done' | 'error' }])
+ *  - agents ([{ id, label?, status: 'running' | 'done' | 'error', progress? }])
+ *      progress is 0..1, optional.
  *  - width / height (number): canvas size in px. Default 360 × 240.
  *  - boidsPerAgent (number): flock size. Default 8.
  *  - palette (string[]): one colour per agent, cycles. Default 6 hues.
@@ -33,13 +36,14 @@ export default function AgentStatus({
   showLabels = true,
 }) {
   const canvasRef = useRef(null);
-  const rafRef = useRef(null);
   const flocksRef = useRef(new Map());
   const agentsRef = useRef(agents);
-  const uiRef = useRef({ arc: 0, doneAt: null, flare: 0 });
+  const uiRef = useRef({ arc: 0, allAt: null, flash: 0, flare: 0 });
+  const kickRef = useRef(() => {});
 
   useEffect(() => {
     agentsRef.current = agents;
+    kickRef.current();
   }, [agents]);
 
   useEffect(() => {
@@ -48,240 +52,267 @@ export default function AgentStatus({
     const dpr = window.devicePixelRatio || 1;
     canvas.width = width * dpr;
     canvas.height = height * dpr;
-    ctx.scale(dpr, dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-    const cx = width / 2;
-    const cy = height / 2;
-    const hubR = Math.min(width, height) * 0.13;   // progress ring
-    const orbitR = Math.min(width, height) * 0.36;  // where running flocks fly
+    const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    const cx = width / 2, cy = height / 2;
+    const hubR = Math.min(width, height) * 0.13;
+    const orbitR = Math.min(width, height) * 0.37;
     const margin = 14;
-
-    const hex = (h) => {
-      const n = parseInt(h.slice(1), 16);
-      return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
-    };
+    const hex = (h) => { const n = parseInt(h.slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; };
     const rgba = (c, a) => `rgba(${c[0]}, ${c[1]}, ${c[2]}, ${a})`;
+    const errRGB = hex(errorColor);
+    const TAU = Math.PI * 2;
 
-    function makeFlock(index) {
-      const angle = (index / Math.max(1, agentsRef.current.length)) * Math.PI * 2;
-      const ox = cx + Math.cos(angle) * orbitR;
-      const oy = cy + Math.sin(angle) * orbitR;
+    function slot(index, total) {
+      const ang = -Math.PI / 2 + (index / Math.max(1, total)) * TAU + 0.4;
+      return { ang, x: cx + Math.cos(ang) * orbitR, y: cy + Math.sin(ang) * orbitR * 0.8 };
+    }
+
+    function makeFlock(agent, index, total, now) {
+      const s = slot(index, total);
+      const arrivedAlready = agent.status !== 'running';
+      const start = arrivedAlready ? s : { x: cx, y: cy };
       return {
         color: palette[index % palette.length],
         rgb: hex(palette[index % palette.length]),
-        angle,
-        spin: (0.004 + Math.random() * 0.004) * (Math.random() < 0.5 ? -1 : 1),
-        wobble: Math.random() * Math.PI * 2,
-        labelX: ox,
-        labelY: oy,
-        labelAlpha: 0,
+        angle: s.ang,
+        spin: (0.003 + Math.random() * 0.003) * (index % 2 ? -1 : 1),
+        wobble: Math.random() * TAU,
+        phase: agent.status === 'done' ? 'gone' : agent.status === 'error' ? 'error' : reduce ? 'work' : 'launch',
+        phaseAt: now,
+        prog: agent.progress ?? 0,
+        spinArc: Math.random() * TAU,
+        labelX: start.x, labelY: start.y, labelAlpha: 0,
+        alpha: 1,
         boids: Array.from({ length: boidsPerAgent }, () => ({
-          x: ox + (Math.random() - 0.5) * 24,
-          y: oy + (Math.random() - 0.5) * 24,
-          vx: (Math.random() - 0.5) * 2,
-          vy: (Math.random() - 0.5) * 2,
-          hist: [],
+          x: start.x + (Math.random() - 0.5) * 6,
+          y: start.y + (Math.random() - 0.5) * 6,
+          vx: 0, vy: 0, hist: [],
         })),
       };
     }
 
+    let raf = 0;
+    let last = 0;
+    const kick = () => { if (!raf) raf = requestAnimationFrame(tick); };
+    kickRef.current = kick;
+
     function tick(now) {
+      raf = 0;
+      const dt = Math.min(48, last ? now - last : 16);
+      last = now;
+      const f = dt / 16;
       const list = agentsRef.current;
       const flocks = flocksRef.current;
       const ui = uiRef.current;
-      const errRGB = hex(errorColor);
-
-      list.forEach((a, i) => {
-        if (!flocks.has(a.id)) flocks.set(a.id, makeFlock(i));
-      });
-      for (const id of [...flocks.keys()]) {
-        if (!list.some((a) => a.id === id)) flocks.delete(id);
-      }
-
       const total = list.length;
-      const done = list.filter((a) => a.status === 'done').length;
-      const allDone = total > 0 && done === total;
-      if (allDone && ui.doneAt == null) ui.doneAt = now;
-      if (!allDone) ui.doneAt = null;
-      ui.arc += ((total ? done / total : 0) - ui.arc) * 0.08;
-      ui.flare += ((allDone ? 1 : 0) - ui.flare) * 0.06;
+
+      // ---- sync flocks with agents ----
+      list.forEach((a, i) => {
+        if (!flocks.has(a.id)) {
+          const fl = makeFlock(a, i, total, now);
+          flocks.set(a.id, fl);
+        }
+        const fl = flocks.get(a.id);
+        if (a.status === 'done' && (fl.phase === 'work' || fl.phase === 'launch')) { fl.phase = 'return'; fl.phaseAt = now; }
+        if (a.status === 'error' && fl.phase !== 'error' && fl.phase !== 'gone') { fl.phase = 'error'; fl.phaseAt = now; }
+        if (a.status === 'running' && (fl.phase === 'gone' || fl.phase === 'error')) {
+          // re-dispatched
+          const s = slot(i, total);
+          fl.phase = 'launch'; fl.phaseAt = now; fl.alpha = 1;
+          for (const b of fl.boids) { b.x = cx; b.y = cy; b.vx = 0; b.vy = 0; b.hist = []; }
+          fl.angle = s.ang;
+        }
+        if (a.progress != null) fl.prog += (Math.max(0, Math.min(1, a.progress)) - fl.prog) * 0.1 * f;
+      });
+      for (const id of [...flocks.keys()]) if (!list.some((a) => a.id === id)) flocks.delete(id);
+
+      let gone = 0;
+      for (const fl of flocks.values()) if (fl.phase === 'gone') gone++;
+      const settledAll = total > 0 && list.every((a) => a.status !== 'running') && [...flocks.values()].every((fl) => fl.phase === 'gone' || fl.phase === 'error');
+      const allDone = settledAll && list.every((a) => a.status === 'done');
+      if (allDone && ui.allAt == null) ui.allAt = now;
+      if (!allDone) ui.allAt = null;
+      ui.arc += ((total ? gone / total : 0) - ui.arc) * 0.08 * f;
+      ui.flare += ((allDone ? 1 : 0) - ui.flare) * 0.06 * f;
+      ui.flash *= Math.pow(0.9, f);
 
       ctx.clearRect(0, 0, width, height);
-
-      // ---- hub: track ring + progress arc ----
       ctx.lineCap = 'round';
-      ctx.beginPath();
-      ctx.arc(cx, cy, hubR, 0, Math.PI * 2);
-      ctx.strokeStyle = 'rgba(28, 25, 23, 0.10)';
-      ctx.lineWidth = 3;
-      ctx.stroke();
-      if (ui.arc > 0.002) {
-        ctx.beginPath();
-        ctx.arc(cx, cy, hubR, -Math.PI / 2, -Math.PI / 2 + ui.arc * Math.PI * 2);
-        ctx.strokeStyle = '#7c3aed';
-        ctx.lineWidth = 3;
-        ctx.stroke();
-      }
 
-      // core glow grows with the number of absorbed flocks
-      const coreStrength = total ? done / total : 0;
-      if (coreStrength > 0) {
-        const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, hubR * 0.9);
-        g.addColorStop(0, `rgba(124, 58, 237, ${0.18 + coreStrength * 0.25 + ui.flare * 0.25})`);
+      // ---- hub ----
+      ctx.beginPath(); ctx.arc(cx, cy, hubR, 0, TAU);
+      ctx.strokeStyle = 'rgba(28, 25, 23, 0.10)'; ctx.lineWidth = 3; ctx.stroke();
+      if (ui.arc > 0.002) {
+        ctx.beginPath(); ctx.arc(cx, cy, hubR, -Math.PI / 2, -Math.PI / 2 + ui.arc * TAU);
+        ctx.strokeStyle = '#7c3aed'; ctx.lineWidth = 3; ctx.stroke();
+      }
+      const coreA = (total ? gone / total : 0) * 0.3 + ui.flash * 0.5 + ui.flare * 0.25;
+      if (coreA > 0.01) {
+        const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, hubR * (0.9 + ui.flash * 0.5));
+        g.addColorStop(0, `rgba(124, 58, 237, ${coreA})`);
         g.addColorStop(1, 'rgba(124, 58, 237, 0)');
         ctx.fillStyle = g;
-        ctx.beginPath();
-        ctx.arc(cx, cy, hubR * 0.9, 0, Math.PI * 2);
-        ctx.fill();
+        ctx.beginPath(); ctx.arc(cx, cy, hubR * 1.4, 0, TAU); ctx.fill();
       }
-
-      // completion: pulse rings + check
+      let ringing = false;
       if (allDone) {
-        const age = (now - ui.doneAt) / 1000;
-        for (let k = 0; k < 2; k++) {
-          const p = ((age + k * 0.9) % 1.8) / 1.8;
-          ctx.beginPath();
-          ctx.arc(cx, cy, hubR + p * hubR * 1.6, 0, Math.PI * 2);
-          ctx.strokeStyle = `rgba(124, 58, 237, ${(1 - p) * 0.3})`;
-          ctx.lineWidth = 1.5;
-          ctx.stroke();
+        const age = (now - ui.allAt) / 1000;
+        if (age < 2.6) {
+          ringing = true;
+          for (let k = 0; k < 2; k++) {
+            const p = ((age + k * 0.9) % 1.8) / 1.8;
+            ctx.beginPath(); ctx.arc(cx, cy, hubR + p * hubR * 1.6, 0, TAU);
+            ctx.strokeStyle = `rgba(124, 58, 237, ${(1 - p) * 0.3})`; ctx.lineWidth = 1.5; ctx.stroke();
+          }
         }
       }
 
       // ---- flocks ----
-      list.forEach((agent) => {
-        const f = flocks.get(agent.id);
-        const running = agent.status === 'running';
-        const errored = agent.status === 'error';
-        const finished = agent.status === 'done';
+      let busy = false;
+      list.forEach((agent, i) => {
+        const fl = flocks.get(agent.id);
+        if (fl.phase === 'gone') return;
+        const s = slot(i, total);
+        const age = now - fl.phaseAt;
+        const launching = fl.phase === 'launch';
+        const working = fl.phase === 'work';
+        const returning = fl.phase === 'return';
+        const errored = fl.phase === 'error';
+
+        // centroid
+        let mx = 0, my = 0, mvx = 0, mvy = 0;
+        for (const b of fl.boids) { mx += b.x; my += b.y; mvx += b.vx; mvy += b.vy; }
+        const n = fl.boids.length;
+        mx /= n; my /= n; mvx /= n; mvy /= n;
 
         // where this flock wants to be
         let tx, ty;
-        if (running) {
-          f.angle += f.spin;
-          f.wobble += 0.02;
-          const r = orbitR + Math.sin(f.wobble) * orbitR * 0.12;
-          tx = cx + Math.cos(f.angle) * r;
-          ty = cy + Math.sin(f.angle) * r * 0.78; // slightly elliptical orbit
-        } else if (errored) {
-          tx = cx + Math.cos(f.angle) * orbitR * 1.28;
-          ty = cy + Math.sin(f.angle) * orbitR * 1.0;
+        if (launching) {
+          tx = s.x; ty = s.y;
+          if (age > 900 || Math.hypot(mx - s.x, my - s.y) < 14) { fl.phase = 'work'; fl.phaseAt = now; fl.angle = s.ang; }
+        } else if (working) {
+          fl.angle += fl.spin * f;
+          fl.wobble += 0.02 * f;
+          const r = orbitR + Math.sin(fl.wobble) * orbitR * 0.1;
+          tx = cx + Math.cos(fl.angle) * r;
+          ty = cy + Math.sin(fl.angle) * r * 0.8;
+        } else if (returning) {
+          tx = cx; ty = cy;
+          if (Math.hypot(mx - cx, my - cy) < hubR * 0.55) {
+            fl.phase = 'gone'; ui.flash = 1;
+          }
         } else {
-          tx = cx;
-          ty = cy;
+          tx = cx + Math.cos(fl.angle) * orbitR * 1.3;
+          ty = cy + Math.sin(fl.angle) * orbitR * 1.05;
         }
+        if (launching || returning || working) busy = true;
+        if (errored && age < 1800) busy = true;
 
-        let mx = 0, my = 0, mvx = 0, mvy = 0;
-        for (const b of f.boids) { mx += b.x; my += b.y; mvx += b.vx; mvy += b.vy; }
-        const n = f.boids.length;
-        mx /= n; my /= n; mvx /= n; mvy /= n;
-
-        for (const b of f.boids) {
+        const launchBoost = launching ? Math.max(0, 1 - age / 500) : 0;
+        for (const b of fl.boids) {
           b.hist.push(b.x, b.y);
-          if (b.hist.length > 16) b.hist.splice(0, 2);
+          if (b.hist.length > (launching || returning ? 22 : 16)) b.hist.splice(0, 2);
 
-          // cohesion / alignment
-          b.vx += (mx - b.x) * (finished ? 0.01 : 0.004);
-          b.vy += (my - b.y) * (finished ? 0.01 : 0.004);
-          b.vx += (mvx - b.vx) * 0.05;
-          b.vy += (mvy - b.vy) * 0.05;
-          // separation
+          b.vx += (mx - b.x) * 0.004 * f; b.vy += (my - b.y) * 0.004 * f;
+          b.vx += (mvx - b.vx) * 0.05 * f; b.vy += (mvy - b.vy) * 0.05 * f;
           for (const other of flocks.values()) {
+            if (other.phase === 'gone') continue;
             for (const o of other.boids) {
               if (o === b) continue;
               const dx = b.x - o.x, dy = b.y - o.y;
               const d2 = dx * dx + dy * dy;
-              const minD = other === f ? 8 : 14;
+              const minD = other === fl ? 8 : 14;
               if (d2 < minD * minD && d2 > 0.01) {
                 const d = Math.sqrt(d2);
-                const push = finished ? 0.03 : 0.08;
-                b.vx += (dx / d) * push;
-                b.vy += (dy / d) * push;
+                b.vx += (dx / d) * 0.08 * f; b.vy += (dy / d) * 0.08 * f;
               }
             }
           }
-          // steer to target
-          const pull = running ? 0.004 : finished ? 0.02 : 0.006;
-          b.vx += (tx - b.x) * pull;
-          b.vy += (ty - b.y) * pull;
-          if (finished) {
-            // keep a slow swirl alive inside the core
-            const dx = b.x - cx, dy = b.y - cy;
-            b.vx += -dy * 0.012;
-            b.vy += dx * 0.012;
+          const pull = launching ? 0.03 : returning ? 0.02 + Math.min(0.05, age / 8000) : working ? 0.004 : 0.003;
+          b.vx += (tx - b.x) * pull * f; b.vy += (ty - b.y) * pull * f;
+          if (launching && launchBoost > 0) {
+            b.vx += Math.cos(s.ang) * 0.9 * launchBoost * f; b.vy += Math.sin(s.ang) * 0.9 * launchBoost * f;
           }
-          if (errored) {
-            b.vx += (Math.random() - 0.5) * 0.6;
-            b.vy += (Math.random() - 0.5) * 0.6;
-          }
-          // soft bounds
-          if (b.x < margin) b.vx += 0.2;
-          if (b.x > width - margin) b.vx -= 0.2;
-          if (b.y < margin) b.vy += 0.2;
-          if (b.y > height - margin) b.vy -= 0.2;
-
-          const damp = running ? 0.985 : finished ? 0.92 : 0.96;
-          b.vx *= damp; b.vy *= damp;
+          if (errored && age < 1500) { b.vx += (Math.random() - 0.5) * 0.7 * f; b.vy += (Math.random() - 0.5) * 0.7 * f; }
+          if (b.x < margin) b.vx += 0.2 * f;
+          if (b.x > width - margin) b.vx -= 0.2 * f;
+          if (b.y < margin) b.vy += 0.2 * f;
+          if (b.y > height - margin) b.vy -= 0.2 * f;
+          const damp = launching ? 0.96 : returning ? 0.95 : errored ? (age < 1500 ? 0.96 : 0.9) : 0.985;
+          b.vx *= Math.pow(damp, f); b.vy *= Math.pow(damp, f);
           const sp = Math.hypot(b.vx, b.vy);
-          const max = running ? 1.9 : finished ? 3.2 : 1.2;
+          const max = launching ? 6 : returning ? 5 : working ? 1.9 : 1.2;
           if (sp > max) { b.vx = (b.vx / sp) * max; b.vy = (b.vy / sp) * max; }
-          b.x += b.vx;
-          b.y += b.vy;
+          b.x += b.vx * f; b.y += b.vy * f;
         }
 
-        // draw: comet trails then bright heads
-        const rgb = errored ? errRGB : f.rgb;
-        ctx.lineCap = 'round';
-        for (const b of f.boids) {
-          const h = b.hist;
-          const pts = h.length / 2;
-          for (let i = 1; i < pts; i++) {
-            const t = i / pts;
+        // draw: trails then heads
+        const rgb = errored ? errRGB : fl.rgb;
+        const bright = launching || returning ? 0.85 : 0.55;
+        const fa = errored ? Math.max(0.35, 1 - age / 4000) : 1;
+        for (const b of fl.boids) {
+          const h = b.hist, pts = h.length / 2;
+          for (let j = 1; j < pts; j++) {
+            const t = j / pts;
             ctx.beginPath();
-            ctx.moveTo(h[(i - 1) * 2], h[(i - 1) * 2 + 1]);
-            ctx.lineTo(h[i * 2], h[i * 2 + 1]);
-            ctx.strokeStyle = rgba(rgb, t * (finished ? 0.35 : 0.55));
+            ctx.moveTo(h[(j - 1) * 2], h[(j - 1) * 2 + 1]);
+            ctx.lineTo(h[j * 2], h[j * 2 + 1]);
+            ctx.strokeStyle = rgba(rgb, t * bright * fa);
             ctx.lineWidth = 0.6 + t * 1.6;
             ctx.stroke();
           }
         }
-        for (const b of f.boids) {
-          ctx.beginPath();
-          ctx.arc(b.x, b.y, finished ? 1.6 : 2.1, 0, Math.PI * 2);
-          ctx.fillStyle = rgba(rgb, 1);
-          ctx.fill();
-          ctx.beginPath();
-          ctx.arc(b.x, b.y, 4, 0, Math.PI * 2);
-          ctx.fillStyle = rgba(rgb, 0.18);
-          ctx.fill();
+        for (const b of fl.boids) {
+          ctx.beginPath(); ctx.arc(b.x, b.y, 2.1, 0, TAU); ctx.fillStyle = rgba(rgb, fa); ctx.fill();
+          ctx.beginPath(); ctx.arc(b.x, b.y, 4, 0, TAU); ctx.fillStyle = rgba(rgb, 0.18 * fa); ctx.fill();
+          if (launching || returning) {
+            ctx.beginPath(); ctx.arc(b.x, b.y, 1, 0, TAU); ctx.fillStyle = 'rgba(255,255,255,0.9)'; ctx.fill();
+          }
         }
 
-        // label rides beside the flock while it's running / failed
+        // dispatch streak from the hub while launching
+        if (launching && launchBoost > 0) {
+          ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(mx, my);
+          ctx.strokeStyle = rgba(rgb, launchBoost * 0.35); ctx.lineWidth = 2; ctx.stroke();
+        }
+
+        // progress ring around a working flock
+        if (working) {
+          const rr = 13;
+          ctx.beginPath(); ctx.arc(mx, my, rr, 0, TAU);
+          ctx.strokeStyle = rgba(rgb, 0.18); ctx.lineWidth = 1.5; ctx.stroke();
+          if (agent.progress != null) {
+            ctx.beginPath(); ctx.arc(mx, my, rr, -Math.PI / 2, -Math.PI / 2 + fl.prog * TAU);
+            ctx.strokeStyle = rgba(rgb, 0.9); ctx.lineWidth = 1.5; ctx.stroke();
+          } else if (!reduce) {
+            fl.spinArc += 0.05 * f;
+            ctx.beginPath(); ctx.arc(mx, my, rr, fl.spinArc, fl.spinArc + Math.PI * 0.45);
+            ctx.strokeStyle = rgba(rgb, 0.7); ctx.lineWidth = 1.5; ctx.stroke();
+          }
+        }
+
+        // label rides beside the flock
         if (showLabels && agent.label) {
-          const want = finished ? 0 : 1;
-          f.labelAlpha += (want - f.labelAlpha) * 0.1;
-          f.labelX += (mx - f.labelX) * 0.12;
-          f.labelY += (my - f.labelY) * 0.12;
-          if (f.labelAlpha > 0.02) {
-            const text = errored ? `${agent.label} · failed` : agent.label;
+          const want = returning ? 0 : 1;
+          fl.labelAlpha += (want - fl.labelAlpha) * 0.1 * f;
+          fl.labelX += (mx - fl.labelX) * 0.12 * f;
+          fl.labelY += (my - fl.labelY) * 0.12 * f;
+          if (fl.labelAlpha > 0.02) {
+            const pct = working && agent.progress != null ? ` · ${Math.round(fl.prog * 100)}%` : '';
+            const text = errored ? `${agent.label} · failed` : `${agent.label}${pct}`;
             ctx.font = FONT;
             const tw = ctx.measureText(text).width;
-            const side = f.labelX < cx ? -1 : 1;
-            const lx = f.labelX + side * 16 - (side < 0 ? tw + 16 : 0);
-            const ly = f.labelY - 20;
-            ctx.globalAlpha = f.labelAlpha;
+            const side = fl.labelX < cx ? -1 : 1;
+            const lx = fl.labelX + side * 20 - (side < 0 ? tw + 20 : 0);
+            const ly = fl.labelY - 22;
+            ctx.globalAlpha = fl.labelAlpha;
             ctx.fillStyle = 'rgba(255, 255, 255, 0.92)';
-            roundRect(ctx, lx - 6, ly - 10, tw + 22, 20, 10);
-            ctx.fill();
-            ctx.strokeStyle = 'rgba(28, 25, 23, 0.1)';
-            ctx.lineWidth = 1;
-            ctx.stroke();
-            ctx.beginPath();
-            ctx.arc(lx + 2, ly, 2.2, 0, Math.PI * 2);
-            ctx.fillStyle = errored
-              ? errorColor
-              : rgba(rgb, 0.55 + Math.sin(now / 250) * 0.45);
-            ctx.fill();
+            roundRect(ctx, lx - 6, ly - 10, tw + 22, 20, 10); ctx.fill();
+            ctx.strokeStyle = 'rgba(28, 25, 23, 0.1)'; ctx.lineWidth = 1; ctx.stroke();
+            ctx.beginPath(); ctx.arc(lx + 2, ly, 2.2, 0, TAU);
+            ctx.fillStyle = errored ? errorColor : rgba(rgb, 0.55 + Math.sin(now / 250) * 0.45); ctx.fill();
             ctx.fillStyle = errored ? errorColor : '#44403c';
             ctx.textBaseline = 'middle';
             ctx.fillText(text, lx + 10, ly + 0.5);
@@ -290,14 +321,11 @@ export default function AgentStatus({
         }
       });
 
-      // ---- hub text: count, or check when complete ----
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
+      // ---- hub text ----
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
       if (ui.flare > 0.5) {
         ctx.strokeStyle = `rgba(124, 58, 237, ${(ui.flare - 0.5) * 2})`;
-        ctx.lineWidth = 2.5;
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
+        ctx.lineWidth = 2.5; ctx.lineJoin = 'round';
         ctx.beginPath();
         ctx.moveTo(cx - hubR * 0.32, cy + hubR * 0.02);
         ctx.lineTo(cx - hubR * 0.08, cy + hubR * 0.28);
@@ -305,18 +333,23 @@ export default function AgentStatus({
         ctx.stroke();
       } else {
         ctx.globalAlpha = 1 - ui.flare * 2;
-        ctx.font = FONT;
-        ctx.fillStyle = '#1c1917';
-        ctx.fillText(`${done}/${total}`, cx, cy + 0.5);
+        ctx.font = FONT; ctx.fillStyle = '#1c1917';
+        ctx.fillText(`${gone}/${total}`, cx, cy + 0.5);
         ctx.globalAlpha = 1;
       }
       ctx.textAlign = 'start';
 
-      rafRef.current = requestAnimationFrame(tick);
+      // ---- sleep when everything is home ----
+      const stillBusy = busy || ringing || ui.flash > 0.02 ||
+        Math.abs(ui.arc - (total ? gone / total : 0)) > 0.002 ||
+        Math.abs(ui.flare - (allDone ? 1 : 0)) > 0.005 ||
+        (showLabels && [...flocks.values()].some((fl) => fl.phase === 'return' && fl.labelAlpha > 0.02));
+      if (stillBusy) raf = requestAnimationFrame(tick);
+      else last = 0;
     }
 
-    rafRef.current = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(rafRef.current);
+    kick();
+    return () => { cancelAnimationFrame(raf); raf = 0; };
   }, [width, height, boidsPerAgent, palette, errorColor, showLabels]);
 
   const done = agents.filter((a) => a.status === 'done').length;

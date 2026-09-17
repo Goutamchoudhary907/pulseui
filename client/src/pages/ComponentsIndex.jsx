@@ -12,7 +12,7 @@ function Group({ title, items }) {
         </h2>
         <div className="h-px flex-1 bg-stone-200" />
       </div>
-      <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-6 grid gap-5 sm:grid-cols-2">
         {items.map((c) => (
           <ComponentCard key={c.slug} entry={c} />
         ))}

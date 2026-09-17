@@ -50,6 +50,7 @@ export default function TimerPage() {
   const switchMode = (d) => {
     setDeterminate(d);
     reset();
+    if (d) setSim(true); // progress mode opens on a running job, not a dead 0%
   };
 
   const value = determinate ? progress : undefined;
@@ -98,7 +99,6 @@ export default function TimerPage() {
           <span className="mx-1 h-5 w-px bg-stone-200" />
           {determinate ? (
             <>
-              <PillButton onClick={() => setProgress((p) => Math.min(1, p + 0.1))}>+10%</PillButton>
               <PillButton
                 active={simulating}
                 onClick={() => {

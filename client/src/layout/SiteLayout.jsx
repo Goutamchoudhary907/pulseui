@@ -5,10 +5,10 @@ const AUTHOR_GITHUB = 'https://github.com/Goutamchoudhary907';
 
 function Wordmark() {
   return (
-    <Link to="/" className="pui-logo-link flex items-center gap-2 group">
-      <Logo size={26} />
-      <span className="font-display text-[22px] leading-none tracking-tight text-ink">
-        Pulseui
+    <Link to="/" className="pui-logo-link flex items-center gap-2.5 group">
+      <Logo size={24} />
+      <span className="font-sans text-[20px] font-extrabold leading-none tracking-[-0.035em] text-ink">
+        Pulse UI
       </span>
     </Link>
   );
@@ -66,7 +66,7 @@ export default function SiteLayout() {
         </div>
         <div className="border-t border-stone-200/70">
           <div className="max-w-6xl mx-auto px-6 py-5 flex items-center justify-between text-xs text-stone-400">
-            <span>© {new Date().getFullYear()} Pulseui</span>
+            <span>© {new Date().getFullYear()} Pulse UI</span>
             <span>
               Made with <span aria-label="love" className="text-red-500">♥</span> by{' '}
               <a href={AUTHOR_GITHUB} className="text-stone-600 hover:text-ink">

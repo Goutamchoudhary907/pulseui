@@ -7,12 +7,12 @@ const entry = getComponent('context-meter');
 const LIMIT = 200_000;
 
 const props = [
-  { name: 'value', type: 'number (0..1)', def: '0', desc: 'Fraction of the context window used. Any change sloshes; the size of the jump sets how hard.' },
+  { name: 'value', type: 'number (0..1)', def: '0', desc: 'Fraction of the context window used. Any change sloshes; a big jump surges and throws spray. At 1 the glass overflows.' },
   { name: 'orientation', type: "'horizontal' | 'vertical'", def: "'horizontal'", desc: 'Bar direction. Vertical rotates the whole glass so "along" points up.' },
   { name: 'length / thickness', type: 'number', def: '240 / 14 · 150 / 36', desc: 'Size in px along and across the bar. Defaults differ per orientation.' },
   { name: 'color', type: 'hex', def: "'#7c3aed'", desc: 'Liquid colour.' },
   { name: 'warnColor / hotColor', type: 'hex', def: "'#f59e0b' / '#ef4444'", desc: 'Blended in past warnAt and boilAt.' },
-  { name: 'warnAt / boilAt', type: 'number (0..1)', def: '0.8 / 0.95', desc: 'Where it warms, and where it starts to boil. warnAt is etched into the glass as a notch.' },
+  { name: 'warnAt / boilAt', type: 'number (0..1)', def: '0.8 / 0.95', desc: 'Where it warms, and where it starts to boil — a fine tremor with bubbles popping at the surface. warnAt is etched into the glass as a notch.' },
   { name: 'label', type: 'true | string', desc: '`true` shows the percentage beside the bar; a string shows that instead.' },
 ];
 
@@ -79,7 +79,9 @@ export default function ContextMeterPage() {
           <span className="mx-1 h-5 w-px bg-stone-200" />
           <PillButton onClick={() => add(4_000)}>+ message</PillButton>
           <PillButton onClick={() => add(38_000)}>+ big document</PillButton>
-          <PillButton onClick={() => setUsed(LIMIT * 0.97)}>to the limit</PillButton>
+          <PillButton onClick={() => setUsed(LIMIT)}>overflow</PillButton>
+          <span className="mx-1 h-5 w-px bg-stone-200" />
+          <PillButton onClick={() => setUsed((u) => Math.round(u * 0.35))}>compact</PillButton>
           <PillButton onClick={() => setUsed(12_000)}>reset</PillButton>
         </>
       }

@@ -31,7 +31,7 @@ export default function ComponentsShowcase() {
           </Link>
         </div>
 
-        <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-14 grid gap-5 sm:grid-cols-2">
           {registry.map((c) => (
             <ComponentCard key={c.slug} entry={c} />
           ))}

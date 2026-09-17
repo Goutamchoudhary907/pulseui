@@ -57,25 +57,24 @@ body::before {
   filter: blur(24px);
 }
 
-/* ---- Logo: the Comet P (src/lib/Logo.jsx) --------------------------------
-   Idle: a glint travels along the P. Hover an ancestor with .pui-logo-link
-   and the P redraws itself — head round the bowl, down the stem, foot flare.
-   The idle drawing equals the animation's end state, so hover-out never snaps. */
-.pui-logo .cp-foot { transform-box: fill-box; transform-origin: center; }
-.pui-logo .cp-glint { animation: pui-glint 2.8s linear infinite; transition: opacity 150ms; }
-.pui-logo-link:hover .cp-glint { opacity: 0; }
-.pui-logo-link:hover .cp-draw { animation: pui-cp-draw 680ms cubic-bezier(0.45, 0, 0.15, 1) both; }
-.pui-logo-link:hover .cp-head { animation: pui-cp-head 680ms cubic-bezier(0.45, 0, 0.15, 1) both; }
-.pui-logo-link:hover .cp-core { animation: pui-cp-core 680ms cubic-bezier(0.45, 0, 0.15, 1) both; }
-.pui-logo-link:hover .cp-foot { animation: pui-cp-foot 900ms cubic-bezier(0.2, 0.7, 0.2, 1) both; }
-@keyframes pui-glint { from { stroke-dashoffset: 0; } to { stroke-dashoffset: -100; } }
-@keyframes pui-cp-draw { from { stroke-dashoffset: 100; } to { stroke-dashoffset: 0; } }
-@keyframes pui-cp-head { from { stroke-dashoffset: 18; } to { stroke-dashoffset: -82; } }
-@keyframes pui-cp-core { from { stroke-dashoffset: 6; } to { stroke-dashoffset: -94; } }
-@keyframes pui-cp-foot {
-  0%, 68% { opacity: 0; transform: scale(0.3); }
-  80% { opacity: 1; transform: scale(1.8); }
-  100% { opacity: 1; transform: scale(1); }
+/* ---- Logo: the tile (src/lib/Logo.jsx)  */
+.pui-logo .pui-tile { transform-box: fill-box; transform-origin: center; animation: pui-breathe 3.2s ease-in-out infinite; }
+.pui-logo .pui-pulse { stroke-dasharray: 1; stroke-dashoffset: 0; }
+.pui-logo-link:hover .pui-pulse { animation: pui-trace 720ms cubic-bezier(0.4, 0, 0.2, 1) both; }
+.pui-logo-link:hover .pui-tile { animation: pui-beat 720ms cubic-bezier(0.3, 0, 0.2, 1) both; }
+@keyframes pui-breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.035); }
+}
+@keyframes pui-trace {
+  0% { stroke-dashoffset: 1; }
+  100% { stroke-dashoffset: 0; }
+}
+@keyframes pui-beat {
+  0% { transform: scale(1); }
+  25% { transform: scale(1.1); }
+  50% { transform: scale(0.97); }
+  100% { transform: scale(1); }
 }
 @media (prefers-reduced-motion: reduce) {
   .pui-logo * { animation: none !important; }
