@@ -3,9 +3,9 @@
 export default function SectionHeading({ eyebrow, title, body, align = 'left' }) {
   const centered = align === 'center';
   return (
-    <div className={centered ? 'mx-auto max-w-2xl text-center' : 'max-w-2xl'}>
+    <div data-reveal className={centered ? 'mx-auto max-w-2xl text-center' : 'max-w-2xl'}>
       {eyebrow && (
-        <div className="font-mono text-[11px] uppercase tracking-[0.18em] text-violet-700">
+        <div className="font-mono text-[11px] uppercase tracking-[0.18em] text-stone-400">
           {eyebrow}
         </div>
       )}

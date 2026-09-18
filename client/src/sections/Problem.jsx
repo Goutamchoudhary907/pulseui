@@ -68,9 +68,11 @@ export default function Problem() {
         />
 
         <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {moments.map(({ label, Mock }) => (
+          {moments.map(({ label, Mock }, i) => (
             <div
               key={label}
+              data-reveal
+              style={{ '--reveal-delay': `${i * 70}ms` }}
               className="rounded-2xl border border-stone-200 bg-white p-5 shadow-[0_1px_2px_rgba(0,0,0,0.03)]"
             >
               <div className="font-mono text-[11px] uppercase tracking-[0.16em] text-stone-400">

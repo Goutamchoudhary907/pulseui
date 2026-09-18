@@ -1,0 +1,38 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <pattern id="dots" width="28" height="28" patternUnits="userSpaceOnUse">
+      <circle cx="1.4" cy="1.4" r="1.4" fill="#1c1917" fill-opacity="0.10" />
+    </pattern>
+    <radialGradient id="glow" cx="50%" cy="46%" r="60%">
+      <stop offset="0%" stop-color="#7c3aed" stop-opacity="0.28" />
+      <stop offset="45%" stop-color="#7c3aed" stop-opacity="0.10" />
+      <stop offset="100%" stop-color="#7c3aed" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+
+  <rect width="1200" height="630" fill="#fafaf8" />
+  <rect width="1200" height="630" fill="url(#dots)" />
+  <rect width="1200" height="630" fill="url(#glow)" />
+
+  <!-- logo tile -->
+  <rect x="96" y="92" width="72" height="72" rx="20" fill="#1c1917" />
+  <path
+    d="M112 128 L124 128 L131 108 L141.5 148 L148.5 128 L160 128"
+    fill="none"
+    stroke="#fff"
+    stroke-width="6.4"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+  <text x="184" y="140" font-family="Inter, ui-sans-serif, sans-serif" font-size="34" font-weight="800" letter-spacing="-1.2" fill="#1c1917">Pulse UI</text>
+
+  <text x="96" y="290" font-family="'Instrument Serif', Georgia, serif" font-size="76" fill="#1c1917">Rare components for</text>
+  <text x="96" y="368" font-family="'Instrument Serif', Georgia, serif" font-size="76" font-style="italic" fill="#7c3aed">AI-native <tspan font-style="normal" fill="#1c1917">interfaces.</tspan></text>
+
+  <text x="96" y="428" font-family="Inter, ui-sans-serif, sans-serif" font-size="24" fill="#57534e">Copy-paste React components, physically-metaphored</text>
+  <text x="96" y="460" font-family="Inter, ui-sans-serif, sans-serif" font-size="24" fill="#57534e">for the moments every AI product has.</text>
+
+  <rect x="96" y="500" width="278" height="42" rx="21" fill="none" stroke="#d6d3d1" stroke-width="1.5" />
+  <circle cx="118" cy="521" r="4" fill="#7c3aed" />
+  <text x="132" y="527" font-family="'JetBrains Mono', ui-monospace, monospace" font-size="12" letter-spacing="1.5" fill="#57534e">COPY-PASTE, NOT NPM-INSTALL</text>
+</svg>

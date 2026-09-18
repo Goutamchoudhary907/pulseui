@@ -32,8 +32,13 @@ export default function ComponentsShowcase() {
         </div>
 
         <div className="mt-14 grid gap-5 sm:grid-cols-2">
-          {registry.map((c) => (
-            <ComponentCard key={c.slug} entry={c} />
+          {registry.map((c, i) => (
+            <ComponentCard
+              key={c.slug}
+              entry={c}
+              data-reveal
+              style={{ '--reveal-delay': `${(i % 2) * 90}ms` }}
+            />
           ))}
         </div>
       </div>

@@ -5,9 +5,11 @@ import ComponentsShowcase from '../sections/ComponentsShowcase';
 import HowItWorks from '../sections/HowItWorks';
 import CTA from '../sections/CTA';
 import useTitle from '../lib/useTitle';
+import useScrollReveal from '../lib/useScrollReveal';
 
 export default function Home() {
   useTitle();
+  useScrollReveal();
   return (
     <>
       <Hero />

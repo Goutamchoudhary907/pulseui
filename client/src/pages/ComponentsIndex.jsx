@@ -29,7 +29,7 @@ export default function ComponentsIndex() {
   return (
     <div className="max-w-6xl mx-auto px-6 py-16 md:py-20">
       <div className="max-w-2xl">
-        <div className="font-mono text-[11px] uppercase tracking-[0.18em] text-violet-700">
+        <div className="font-mono text-[11px] uppercase tracking-[0.18em] text-stone-400">
           Components
         </div>
         <h1 className="mt-4 font-display text-[44px] leading-[1.05] tracking-[-0.015em] text-ink sm:text-[56px]">

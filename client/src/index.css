@@ -17,6 +17,18 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Site-wide: replace the browser's default blue with the ink/violet theme
+   for text selection and keyboard focus, so nothing defaults to blue. */
+::selection {
+  background: rgba(124, 58, 237, 0.22);
+  color: var(--color-ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 2px;
+}
+
 body {
   margin: 0;
   background: var(--color-paper);
@@ -78,4 +90,28 @@ body::before {
 }
 @media (prefers-reduced-motion: reduce) {
   .pui-logo * { animation: none !important; }
+}
+
+/* ---- Scroll reveal (src/lib/useScrollReveal.js)
+   Only opacity/transform, only while <html data-reveal-ready> is present,
+   so nothing is hidden unless the observer is actually running. */
+/* Intensity knobs. Subtle preset (previous): --reveal-y 18px, --reveal-scale 1,
+   --reveal-duration 700ms, --reveal-stagger 1. */
+:root {
+  --reveal-y: 40px;
+  --reveal-scale: 0.97;
+  --reveal-duration: 900ms;
+  --reveal-stagger: 1.6;
+}
+html[data-reveal-ready] [data-reveal] {
+  opacity: 0;
+  transform: translateY(var(--reveal-y)) scale(var(--reveal-scale));
+  transition:
+    opacity var(--reveal-duration) cubic-bezier(0.16, 1, 0.3, 1),
+    transform var(--reveal-duration) cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: calc(var(--reveal-delay, 0ms) * var(--reveal-stagger));
+}
+html[data-reveal-ready] [data-reveal][data-revealed] {
+  opacity: 1;
+  transform: none;
 }

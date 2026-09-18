@@ -19,7 +19,7 @@ function Preview({ entry }) {
   );
 }
 
-export default function ComponentCard({ entry }) {
+export default function ComponentCard({ entry, ...rest }) {
   const available = entry.status === 'available';
 
   const inner = (
@@ -51,10 +51,12 @@ export default function ComponentCard({ entry }) {
   );
 
   return available ? (
-    <Link to={`/components/${entry.slug}`} className="block h-full">
+    <Link to={`/components/${entry.slug}`} className="block h-full" {...rest}>
       {inner}
     </Link>
   ) : (
-    <div className="h-full">{inner}</div>
+    <div className="h-full" {...rest}>
+      {inner}
+    </div>
   );
 }

@@ -16,7 +16,7 @@ export default function Hero() {
       <div className="max-w-6xl mx-auto px-6 pt-20 pb-24 md:pt-28 md:pb-32 grid md:grid-cols-[1.15fr_1fr] gap-14 items-center">
         <div>
           <span className="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-3 py-1 font-mono text-[11px] uppercase tracking-[0.16em] text-stone-500 shadow-[0_1px_0_rgba(0,0,0,0.03)]">
-            <span className="h-1.5 w-1.5 rounded-full bg-violet-500" />
+            <span className="h-1.5 w-1.5 rounded-full bg-stone-400" />
             Copy-paste, not npm-install
           </span>
 
@@ -27,9 +27,8 @@ export default function Hero() {
           </h1>
 
           <p className="mt-6 max-w-lg text-[17px] leading-relaxed text-stone-600">
-            Every AI product ships the same flat "thinking" spinner and plain
-            progress bar. Pulse UI gives those same moments an organic,
-            physically-metaphored treatment — the kind that stops a scroll.
+            Every AI product has the same flat spinner. Pulse UI gives it an
+            organic, physically-metaphored treatment instead.
           </p>
 
           <div className="mt-9 flex items-center gap-3">
@@ -52,7 +51,7 @@ export default function Hero() {
           <div className="glow absolute -inset-10 -z-10 rounded-full" />
           <div className="relative rounded-3xl border border-stone-200 bg-white p-2 shadow-[0_1px_2px_rgba(0,0,0,0.04),0_32px_64px_-32px_rgba(124,58,237,0.35)]">
             <div className="bg-dots relative flex aspect-[4/3] items-center justify-center rounded-2xl border border-stone-100 bg-stone-50/60">
-              <ThinkingIndicator settled={settled} size={200} color="#7c3aed" />
+              <ThinkingIndicator settled={settled} size={272} color="#7c3aed" />
 
               <div className="absolute left-4 top-4 inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white/90 px-2.5 py-1 font-mono text-[11px] text-stone-600 backdrop-blur">
                 <span

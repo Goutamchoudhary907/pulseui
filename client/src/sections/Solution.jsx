@@ -26,7 +26,11 @@ export default function Solution() {
           body="Pulse UI takes the moments every AI product already has and renders them with physical metaphors — particles, liquid, swarms, film — in the spirit of rareui and Aceternity, but themed around AI states instead of generic marketing UI."
         />
 
-        <div className="rounded-3xl border border-stone-200 bg-white p-2 shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
+        <div
+          data-reveal
+          style={{ '--reveal-delay': '120ms' }}
+          className="rounded-3xl border border-stone-200 bg-white p-2 shadow-[0_1px_2px_rgba(0,0,0,0.03)]"
+        >
           <div className="rounded-2xl bg-stone-50/70 p-6 sm:p-8">
             <div className="font-mono text-[11px] uppercase tracking-[0.18em] text-stone-400">
               The bar for inclusion
@@ -34,7 +38,7 @@ export default function Solution() {
             <ol className="mt-6 space-y-6">
               {criteria.map((c, i) => (
                 <li key={c.title} className="flex gap-4">
-                  <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-violet-200 bg-violet-50 font-mono text-[12px] text-violet-700">
+                  <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-stone-200 bg-white font-mono text-[12px] text-ink">
                     {i + 1}
                   </span>
                   <div>
