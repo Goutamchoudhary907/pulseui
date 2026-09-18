@@ -42,7 +42,7 @@ export default function ConfidenceTextPage() {
       meta="0 dependencies · css + svg filter"
       previewClassName="min-h-[360px]"
       preview={
-        <div className="flex w-full max-w-xl flex-col gap-3 px-6 pb-12 pt-2">
+        <div className="flex w-full max-w-xl flex-col gap-3 px-4 pb-6 pt-6 sm:px-6 sm:pb-12 sm:pt-2">
           <div className="flex items-start gap-3">
             <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-ink font-display text-[15px] text-white">
               P

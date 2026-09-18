@@ -74,15 +74,15 @@ function Header() {
     <header className="sticky top-0 z-40 h-[76px] pointer-events-none">
       <div
         className={
-          'pointer-events-auto mx-auto flex items-center justify-between px-6 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ' +
+          'pointer-events-auto flex items-center justify-between px-4 sm:px-6 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ' +
           (scrolled
-            ? 'mt-3 h-12 max-w-2xl rounded-full border border-stone-200/80 bg-white/80 shadow-[0_1px_2px_rgba(0,0,0,0.04),0_12px_32px_-16px_rgba(28,25,23,0.18)] backdrop-blur-md'
-            : 'mt-0 h-16 max-w-6xl rounded-none border border-transparent bg-transparent shadow-none')
+            ? 'mx-4 sm:mx-auto mt-3 h-12 max-w-2xl rounded-full border border-stone-200/80 bg-white/80 shadow-[0_1px_2px_rgba(0,0,0,0.04),0_12px_32px_-16px_rgba(28,25,23,0.18)] backdrop-blur-md'
+            : 'mx-auto mt-0 h-16 max-w-6xl rounded-none border border-transparent bg-transparent shadow-none')
         }
       >
         <Wordmark compact={scrolled} />
-        <nav className="flex items-center gap-7">
-          <NavLink to="/" end className={navClass}>
+        <nav className="flex items-center gap-4 sm:gap-7">
+          <NavLink to="/" end className={(s) => 'hidden sm:inline ' + navClass(s)}>
             Home
           </NavLink>
           <NavLink to="/components" className={navClass}>

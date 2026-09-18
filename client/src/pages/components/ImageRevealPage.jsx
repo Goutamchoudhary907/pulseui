@@ -183,7 +183,7 @@ export default function ImageRevealPage() {
       meta="0 dependencies · canvas"
       previewClassName="min-h-[480px]"
       preview={
-        <div className="w-full max-w-md px-6 py-6">
+        <div className="w-full max-w-md px-4 py-6 sm:px-6">
           <div className="rounded-2xl border border-stone-200 bg-white p-3 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
             <div className="mb-3 flex items-baseline justify-between gap-3 px-1 font-mono text-[11px] text-stone-400">
               <span className="truncate text-stone-600">/imagine {PROMPTS[i]}</span>

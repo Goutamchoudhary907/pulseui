@@ -51,8 +51,8 @@ export default function HoldToAllowPage() {
       meta="0 dependencies · canvas + css"
       previewClassName="min-h-[420px]"
       preview={
-        <div className="flex w-full max-w-xl items-start gap-3 px-6 py-6">
-          <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-ink font-display text-[15px] text-white">
+        <div className="flex w-full max-w-xl items-start gap-3 px-4 py-6 sm:px-6">
+          <span className="mt-0.5 hidden h-7 w-7 shrink-0 items-center justify-center rounded-full bg-ink font-display text-[15px] text-white sm:flex">
             P
           </span>
           <div className="min-w-0 flex-1 rounded-2xl rounded-tl-md border border-stone-200 bg-white shadow-[0_1px_2px_rgba(0,0,0,0.04)]">

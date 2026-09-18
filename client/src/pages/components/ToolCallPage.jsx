@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { getComponent } from '../../registry';
 import ToolCall from '../../components/ToolCall';
 import DocPage, { PillButton } from '../../lib/DocPage';
+import { usePhone } from '../../lib/useViewport';
 
 const entry = getComponent('tool-call');
 
@@ -23,6 +24,7 @@ const CALLS = [
 const STEP = { calling: 900, running: 2600, done: 1800, error: 2200 };
 
 export default function ToolCallPage() {
+  const phone = usePhone();
   const [run, setRun] = useState(false);
   const [fail, setFail] = useState(false);
   const [i, setI] = useState(0);
@@ -69,9 +71,10 @@ export default function ToolCallPage() {
       meta="0 dependencies · canvas"
       previewClassName="min-h-[380px]"
       preview={
-        <div className="flex w-full max-w-md flex-col gap-3 px-6 pb-12 pt-2">
+        <div className="flex w-full max-w-md flex-col gap-3 px-4 pb-6 pt-6 sm:px-6 sm:pb-12 sm:pt-2">
           <div className="flex items-start gap-3">
-            <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-ink font-display text-[15px] text-white">
+            {/* avatar hidden on phones: the trace + tool name need the width */}
+            <span className="mt-0.5 hidden h-7 w-7 shrink-0 items-center justify-center rounded-full bg-ink font-display text-[15px] text-white sm:flex">
               P
             </span>
             <div className="min-w-0 flex-1 divide-y divide-stone-100 rounded-2xl rounded-tl-md border border-stone-200 bg-white shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
@@ -79,13 +82,13 @@ export default function ToolCallPage() {
                 const s = statusOf(k);
                 return (
                   <div key={c.name} className="px-4 py-3">
-                    <ToolCall name={c.name} status={s} detail={detailOf(c, s)} />
+                    <ToolCall name={c.name} status={s} detail={detailOf(c, s)} width={phone ? 96 : 132} />
                   </div>
                 );
               })}
             </div>
           </div>
-          <p className="pl-10 text-[12.5px] text-stone-400">
+          <p className="pl-1 text-[12.5px] text-stone-400 sm:pl-10">
             {run ? `call ${i + 1} of ${CALLS.length}` : 'press ▶ to watch the agent work through three tools'}
           </p>
         </div>

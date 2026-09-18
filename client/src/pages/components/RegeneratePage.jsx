@@ -108,7 +108,7 @@ export default function RegeneratePage() {
       meta="0 dependencies · css"
       previewClassName="min-h-[400px]"
       preview={
-        <div className="flex w-full max-w-xl items-start gap-3 px-6 py-6">
+        <div className="flex w-full max-w-xl items-start gap-3 px-4 py-6 sm:px-6">
           <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-ink font-display text-[15px] text-white">
             P
           </span>

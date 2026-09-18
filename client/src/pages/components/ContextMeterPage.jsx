@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { getComponent } from '../../registry';
 import ContextMeter from '../../components/ContextMeter';
 import DocPage, { PillButton } from '../../lib/DocPage';
+import { usePhone } from '../../lib/useViewport';
 
 const entry = getComponent('context-meter');
 const LIMIT = 200_000;
@@ -16,21 +17,21 @@ const props = [
   { name: 'label', type: 'true | string', desc: '`true` shows the percentage beside the bar; a string shows that instead.' },
 ];
 
-function Composer({ value, used }) {
+function Composer({ value, used, phone }) {
   return (
     <div className="w-full max-w-xl rounded-2xl border border-stone-200 bg-white shadow-[0_1px_2px_rgba(0,0,0,0.04),0_20px_40px_-30px_rgba(0,0,0,0.25)]">
       <div className="px-5 pt-4 pb-3 text-[15px] leading-relaxed text-stone-400">
         Ask a follow-up…
       </div>
-      <div className="flex items-center justify-between gap-6 border-t border-stone-100 px-4 py-3">
+      <div className="flex items-center justify-between gap-3 border-t border-stone-100 px-3 py-3 sm:gap-6 sm:px-4">
         <div className="flex min-w-0 items-center gap-3 whitespace-nowrap font-mono text-[11px] text-stone-500">
-          <span className="shrink-0 rounded-md border border-stone-200 px-2 py-1">claude-sonnet-5</span>
-          <span className="hidden truncate md:inline">
+          <span className="hidden shrink-0 rounded-md border border-stone-200 px-2 py-1 sm:inline">claude-sonnet-5</span>
+          <span className="truncate sm:hidden md:inline">
             {used.toLocaleString('en-US')} / {LIMIT.toLocaleString('en-US')}
           </span>
         </div>
-        <div className="flex shrink-0 items-center gap-4">
-          <ContextMeter value={value} label />
+        <div className="flex shrink-0 items-center gap-3 sm:gap-4">
+          <ContextMeter value={value} label length={phone ? 110 : undefined} />
           <span className="flex h-8 w-8 items-center justify-center rounded-full bg-ink text-white">↑</span>
         </div>
       </div>
@@ -39,6 +40,7 @@ function Composer({ value, used }) {
 }
 
 export default function ContextMeterPage() {
+  const phone = usePhone();
   const [used, setUsed] = useState(58_000);
   const [orientation, setOrientation] = useState('horizontal');
   const value = Math.min(1, used / LIMIT);
@@ -50,11 +52,11 @@ export default function ContextMeterPage() {
       meta="0 dependencies · canvas"
       previewClassName="min-h-[420px]"
       preview={
-        <div className="flex w-full items-center justify-center px-6 pb-10">
+        <div className="flex w-full items-center justify-center px-4 py-6 sm:px-6 sm:pb-10 sm:pt-0">
           {orientation === 'horizontal' ? (
-            <Composer value={value} used={used} />
+            <Composer value={value} used={used} phone={phone} />
           ) : (
-            <div className="flex items-center gap-10">
+            <div className="flex items-center gap-6 sm:gap-10">
               <ContextMeter value={value} orientation="vertical" length={200} thickness={44} />
               <div className="font-mono text-[12px] leading-6 text-stone-500">
                 <div className="text-[28px] leading-none tracking-tight text-ink">

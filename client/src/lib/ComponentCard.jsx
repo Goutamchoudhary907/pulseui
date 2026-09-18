@@ -1,5 +1,20 @@
+import { useRef } from 'react';
 import { Link } from 'react-router-dom';
 import StatusBadge from './StatusBadge';
+import useInView from './useInView';
+
+function PreviewWell({ entry }) {
+  const ref = useRef(null);
+  const inView = useInView(ref);
+  return (
+    <div
+      ref={ref}
+      className="bg-dots flex h-56 items-center justify-center overflow-hidden rounded-2xl border border-stone-100 bg-stone-50/60 sm:h-60"
+    >
+      {inView && <Preview entry={entry} />}
+    </div>
+  );
+}
 
 function Preview({ entry }) {
   if (entry.preview) {
@@ -31,9 +46,7 @@ export default function ComponentCard({ entry, ...rest }) {
           : '')
       }
     >
-      <div className="bg-dots flex h-56 items-center justify-center overflow-hidden rounded-2xl border border-stone-100 bg-stone-50/60 sm:h-60">
-        <Preview entry={entry} />
-      </div>
+      <PreviewWell entry={entry} />
       <div className="flex items-center justify-between gap-4 px-4 pb-3 pt-4">
         <div className="min-w-0">
           <h3 className="font-display text-[22px] leading-none tracking-tight text-ink">
@@ -51,11 +64,11 @@ export default function ComponentCard({ entry, ...rest }) {
   );
 
   return available ? (
-    <Link to={`/components/${entry.slug}`} className="block h-full" {...rest}>
+    <Link to={`/components/${entry.slug}`} className="block h-full min-w-0" {...rest}>
       {inner}
     </Link>
   ) : (
-    <div className="h-full" {...rest}>
+    <div className="h-full min-w-0" {...rest}>
       {inner}
     </div>
   );

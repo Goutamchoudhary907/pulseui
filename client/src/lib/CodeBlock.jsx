@@ -22,13 +22,13 @@ export default function CodeBlock({ code, filename }) {
         <button
           onClick={handleCopy}
           className={
-            'rounded-md border px-2.5 py-1 font-mono text-[11px] transition-colors ' +
+            'copy-btn rounded-md border px-2.5 py-1 font-mono text-[11px] transition-colors ' +
             (copied
-              ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+              ? 'is-stamped border-ink bg-ink text-white'
               : 'border-stone-200 bg-white text-stone-600 hover:border-stone-300 hover:text-ink')
           }
         >
-          {copied ? 'Copied' : 'Copy'}
+          {copied ? 'Copied ✓' : 'Copy'}
         </button>
       </div>
       <pre className="max-h-[520px] overflow-auto px-5 py-4 font-mono text-[13px] leading-6 text-stone-800">

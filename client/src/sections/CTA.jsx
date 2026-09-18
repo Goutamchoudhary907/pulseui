@@ -3,10 +3,10 @@ import { Link } from 'react-router-dom';
 export default function CTA() {
   return (
     <section className="border-t border-stone-200">
-      <div className="max-w-6xl mx-auto px-6 py-24">
+      <div className="max-w-6xl mx-auto px-6 py-16 sm:py-24">
         <div
           data-reveal
-          className="relative overflow-hidden rounded-[32px] border border-stone-200 bg-white px-6 py-20 text-center shadow-[0_1px_2px_rgba(0,0,0,0.03)]"
+          className="relative overflow-hidden rounded-[32px] border border-stone-200 bg-white px-5 py-14 sm:px-6 sm:py-20 text-center shadow-[0_1px_2px_rgba(0,0,0,0.03)]"
         >
           <div className="glow absolute left-1/2 top-1/2 -z-0 h-[420px] w-[720px] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-70" />
           <div className="bg-dots absolute inset-0 -z-10 opacity-60" />

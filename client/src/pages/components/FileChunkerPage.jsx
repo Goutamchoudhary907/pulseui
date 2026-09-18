@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { getComponent } from '../../registry';
 import FileChunker from '../../components/FileChunker';
 import DocPage, { PillButton } from '../../lib/DocPage';
+import { usePhone } from '../../lib/useViewport';
 
 const entry = getComponent('file-chunker');
 
@@ -19,6 +20,7 @@ const props = [
 const DOC = { name: 'quarterly-report.pdf', pages: 12, chunks: 48, tokens: 12400 };
 
 export default function FileChunkerPage() {
+  const phone = usePhone();
   const [auto, setAuto] = useState(true);
   const [run, setRun] = useState(0); // 0 idle, >0 a run in progress
   const [fail, setFail] = useState(false);
@@ -82,14 +84,14 @@ export default function FileChunkerPage() {
       meta="0 dependencies · canvas"
       previewClassName="min-h-[380px]"
       preview={
-        <div className="flex w-full max-w-md flex-col gap-3 px-6 pb-12 pt-2">
+        <div className="flex w-full max-w-md flex-col gap-3 px-4 pb-6 pt-6 sm:px-6 sm:pb-12 sm:pt-2">
           <div className="flex justify-end">
             <div className="rounded-2xl rounded-tr-md bg-stone-100 px-4 py-2.5 text-[13.5px] text-stone-700">
               summarise the risks section
             </div>
           </div>
           <div className="flex items-start gap-3">
-            <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-ink font-display text-[15px] text-white">
+            <span className="mt-0.5 hidden h-7 w-7 shrink-0 items-center justify-center rounded-full bg-ink font-display text-[15px] text-white sm:flex">
               P
             </span>
             <div className="min-w-0 flex-1 rounded-2xl rounded-tl-md border border-stone-200 bg-white px-4 py-3 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
@@ -100,6 +102,7 @@ export default function FileChunkerPage() {
                 pages={DOC.pages}
                 chunks={st.chunks}
                 tokens={st.tokens}
+                width={phone ? 110 : 140}
                 detail={st.stage === 'error' ? 'failed · page 6 could not be parsed' : undefined}
               />
               {done && (

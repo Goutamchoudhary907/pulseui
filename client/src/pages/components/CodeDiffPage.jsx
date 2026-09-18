@@ -2,8 +2,21 @@ import { useState } from 'react';
 import { getComponent } from '../../registry';
 import CodeDiff from '../../components/CodeDiff';
 import DocPage, { PillButton } from '../../lib/DocPage';
+import { usePhone } from '../../lib/useViewport';
 
 const entry = getComponent('code-diff');
+
+const LINES_PHONE = [
+  { type: 'context', content: 'async function get(id) {' },
+  { type: 'remove', content: '  const r = await load(id);' },
+  { type: 'remove', content: '  return r.json();' },
+  { type: 'add', content: '  const r = await load(id, {' },
+  { type: 'add', content: '    timeout: 5000,' },
+  { type: 'add', content: '  });' },
+  { type: 'add', content: '  if (!r.ok) throw fail(r);' },
+  { type: 'add', content: '  return r.json();' },
+  { type: 'context', content: '}' },
+];
 
 const LINES = [
   { type: 'context', content: 'async function fetchUser(id) {' },
@@ -31,6 +44,7 @@ const HEADER = {
 };
 
 export default function CodeDiffPage() {
+  const phone = usePhone();
   const [status, setStatus] = useState('pending');
   const [key, setKey] = useState(0);
   const decide = (s) => {
@@ -45,12 +59,12 @@ export default function CodeDiffPage() {
       meta="0 dependencies · css"
       previewClassName="min-h-[400px]"
       preview={
-        <div className="w-full max-w-2xl overflow-hidden rounded-xl border border-stone-200 bg-white shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
+        <div className="w-[calc(100%-2rem)] max-w-2xl overflow-hidden rounded-xl sm:w-full border border-stone-200 bg-white shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
           <div className="flex items-center justify-between border-b border-stone-200 bg-stone-50/70 px-4 py-2 font-mono text-[11px] text-stone-500">
             <span>src/api/users.js</span>
             <span className={HEADER[status][1]}>{HEADER[status][0]}</span>
           </div>
-          <CodeDiff key={key} lines={LINES} status={status} style={{ padding: '8px 0' }} />
+          <CodeDiff key={key} lines={phone ? LINES_PHONE : LINES} status={status} style={{ padding: '8px 0' }} />
         </div>
       }
       controls={

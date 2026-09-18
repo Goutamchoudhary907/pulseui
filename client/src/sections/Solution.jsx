@@ -14,7 +14,7 @@ const criteria = [
 export default function Solution() {
   return (
     <section className="border-t border-stone-200">
-      <div className="max-w-6xl mx-auto px-6 py-24 grid gap-14 md:grid-cols-[1fr_1fr] md:items-start">
+      <div className="max-w-6xl mx-auto px-6 py-16 sm:py-24 grid gap-10 sm:gap-14 md:grid-cols-[1fr_1fr] md:items-start">
         <SectionHeading
           eyebrow="The angle"
           title={

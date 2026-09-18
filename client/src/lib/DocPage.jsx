@@ -29,7 +29,7 @@ export default function DocPage({
   const lines = entry.source.split('\n').length;
 
   return (
-    <div className="max-w-6xl mx-auto px-6 py-14 md:py-20">
+    <div className="max-w-6xl mx-auto px-4 py-12 sm:px-6 sm:py-14 md:py-20">
       <Link
         to="/components"
         className="inline-flex items-center gap-1.5 text-sm text-stone-500 hover:text-ink"
@@ -54,17 +54,17 @@ export default function DocPage({
         </div>
       </div>
 
-      <section className="mt-12 rounded-3xl border border-stone-200 bg-white p-2 shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
+      <section className="relative mt-12 rounded-3xl border border-stone-200 bg-white p-2 shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
         <div
-          className={`bg-dots relative flex items-center justify-center rounded-2xl border border-stone-100 bg-stone-50/60 ${previewClassName}`}
+          className={`bg-dots relative flex items-center justify-center overflow-hidden rounded-2xl border border-stone-100 bg-stone-50/60 ${previewClassName}`}
         >
           {preview}
-          {controls && (
-            <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 items-center gap-1 rounded-full border border-stone-200 bg-white p-1 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
-              {controls}
-            </div>
-          )}
         </div>
+        {controls && (
+          <div className="mx-auto mt-2 flex w-fit max-w-full flex-wrap items-center justify-center gap-1 rounded-2xl border border-stone-200 bg-white p-1 shadow-[0_1px_2px_rgba(0,0,0,0.04)] sm:absolute sm:bottom-6 sm:left-1/2 sm:mt-0 sm:max-w-[calc(100%-3rem)] sm:-translate-x-1/2 sm:rounded-full">
+            {controls}
+          </div>
+        )}
       </section>
 
       <div className="mt-16 grid gap-16 lg:grid-cols-[1fr_280px]">
@@ -125,7 +125,7 @@ export function PillButton({ active, onClick, children }) {
     <button
       onClick={onClick}
       className={
-        'whitespace-nowrap rounded-full px-4 py-1.5 text-sm transition-colors ' +
+        'whitespace-nowrap rounded-full px-3 py-1.5 text-sm transition-colors sm:px-4 ' +
         (active ? 'bg-ink text-white' : 'text-stone-600 hover:text-ink')
       }
     >

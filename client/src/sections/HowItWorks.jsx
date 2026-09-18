@@ -21,7 +21,7 @@ const steps = [
 export default function HowItWorks() {
   return (
     <section id="how-it-works" className="scroll-mt-16 border-t border-stone-200">
-      <div className="max-w-6xl mx-auto px-6 py-24">
+      <div className="max-w-6xl mx-auto px-6 py-16 sm:py-24">
         <SectionHeading
           eyebrow="How it works"
           title={

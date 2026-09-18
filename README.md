@@ -1,8 +1,10 @@
-# Pulseui
+# Pulse UI
+
+![Pulse UI — rare components for AI-native interfaces](client/public/og.png)
 
 Rare, physically-metaphored React components for AI-native interfaces.
 
-Every AI product ships the same flat moments — a spinner for "thinking", a plain bar for context usage, a green/red diff, a hedge badge for low confidence. Pulseui takes those exact moments and renders them so they stop a scroll: particles that converge as the model settles, a context bar that sloshes like liquid in glass, a diff that scatters its removed characters, agents as flocks of light.
+Every AI product ships the same flat moments — a spinner for "thinking", a plain bar for context usage, a green/red diff, a hedge badge for low confidence. Pulse UI takes those exact moments and renders them so they stop a scroll: particles that converge as the model settles, a context bar that sloshes like liquid in glass, a diff that scatters its removed characters, agents as flocks of light.
 
 **Copy-paste, not npm-install.** Each component is one file with zero dependencies (plain `<canvas>` or CSS). You paste it into your project and own the code — the same model as shadcn/ui.
 
@@ -11,13 +13,17 @@ Every AI product ships the same flat moments — a spinner for "thinking", a pla
 | Component | The moment |
 |---|---|
 | **Thinking Indicator** | A loose particle field that drifts, then converges into a point as the model settles. |
-| **Streaming Text** | Streaming text you can see arrive — each chunk lands as vapour and condenses into ink. |
-| **Confidence Text** | Low-confidence tokens get a faint chromatic flicker instead of a hedge badge. |
-| **Context Meter** | A progress bar where the fill is liquid — sloshes on big jumps, boils near the limit. |
-| **Code Diff** | A standard diff until accepted, then a beam sweeps down and it becomes the code. |
+| **Confidence Text** | Confident words are sharp ink; uncertain ones sit out of focus under a heat-haze until verified. |
+| **Context Meter** | A progress bar where the fill is liquid — sloshes on big jumps, boils near the limit, overflows past it. |
+| **Code Diff** | A standard diff until accepted, then a beam sweeps down and it becomes the code. Reject and it blows away. |
 | **Agent Status** | Parallel agents as flocks orbiting a progress ring; each streams into the core as it finishes. |
+| **Regenerate** | Hitting regenerate rewinds the old answer like tape before the new one streams in. |
 | **Timer** | A spinner-sized ring of ticks — a sweeping head and a counting clock, or a filling progress ring. |
-| **Regenerate** | Hitting regenerate rewinds the old answer like film stock before the new one types in. |
+| **Streaming Text** | Streaming text you can see arrive — each chunk lands as vapour and condenses into ink. |
+| **Tool Call** | A tool call as a signal on a circuit trace: the pulse rides out, the pad ignites while it runs, the result rides back. |
+| **Hold to Allow** | A permission prompt with a fuse in the Allow button — hold and it burns across; let go early and it recedes. |
+| **Image Reveal** | A generated image arriving as a field of dots that drift, then lock onto a grid until the real picture fades in. |
+| **File Chunker** | A document being prepared for retrieval — the page fills as it's read, strips peel off onto a deck, embedding lights each one. |
 
 Every component has a live preview, controls, usage snippet and its full source on the site.
 

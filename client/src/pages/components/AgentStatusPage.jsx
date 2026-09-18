@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { getComponent } from '../../registry';
 import AgentStatus from '../../components/AgentStatus';
 import DocPage, { PillButton } from '../../lib/DocPage';
+import { useElementWidth, usePhone } from '../../lib/useViewport';
 
 const entry = getComponent('agent-status');
 
@@ -20,6 +21,12 @@ const props = [
 export default function AgentStatusPage() {
   const [agents, setAgents] = useState([]);
   const [run, setRun] = useState(0);
+
+  const phone = usePhone();
+  const wellRef = useRef(null);
+  const wellWidth = useElementWidth(wellRef);
+  const canvasW = phone ? Math.max(200, Math.floor(wellWidth) - 16) : 560;
+  const canvasH = phone ? 300 : 340;
 
   // dispatch: add the next agent
   const dispatch = () =>
@@ -65,10 +72,12 @@ export default function AgentStatusPage() {
     <DocPage
       entry={entry}
       meta="0 dependencies · canvas"
-      previewClassName="min-h-[460px]"
+      previewClassName="min-h-[380px] sm:min-h-[460px]"
       preview={
-        <div className="pb-8 pt-2">
-          <AgentStatus agents={agents} width={560} height={340} />
+        <div ref={wellRef} className="flex w-full justify-center pb-4 pt-4 sm:pb-8 sm:pt-2">
+          {(!phone || wellWidth > 0) && (
+            <AgentStatus agents={agents} width={canvasW} height={canvasH} />
+          )}
         </div>
       }
       controls={

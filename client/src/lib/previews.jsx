@@ -52,13 +52,17 @@ export function ConfidenceTextPreview() {
 
 export function ContextMeterPreview() {
   const value = useCycle([0.32, 0.61, 0.97, 1, 0.45], 2600);
-  return <ContextMeter value={value} length={260} thickness={18} label />;
+  return (
+    <div className="scale-[0.9] sm:scale-100">
+      <ContextMeter value={value} length={260} thickness={18} label />
+    </div>
+  );
 }
 
 export function CodeDiffPreview() {
   const status = useCycle(['pending', 'accepted', 'accepted', 'pending', 'rejected', 'rejected'], 1500);
   return (
-    <div className="w-[320px] overflow-hidden rounded-lg border border-stone-200">
+    <div className="w-full max-w-[320px] overflow-hidden rounded-lg border border-stone-200">
       <CodeDiff
         status={status}
         style={{ padding: '6px 0' }}
@@ -81,7 +85,11 @@ export function AgentStatusPreview() {
     { id: 'b', status: stage >= 3 ? 'done' : 'running', progress: stage >= 3 ? 1 : 0.35 },
     { id: 'c', status: stage >= 4 ? 'done' : 'running', progress: stage >= 4 ? 1 : 0.8 },
   ];
-  return <AgentStatus agents={agents} width={360} height={220} boidsPerAgent={7} showLabels={false} />;
+  return (
+    <div className="scale-[0.65] sm:scale-100">
+      <AgentStatus agents={agents} width={360} height={220} boidsPerAgent={7} showLabels={false} />
+    </div>
+  );
 }
 
 const ANSWERS = [
@@ -95,7 +103,7 @@ export function RegeneratePreview() {
     return () => clearInterval(id);
   }, []);
   return (
-    <div className="w-[300px] text-[15px] leading-relaxed text-stone-700">
+    <div className="w-full max-w-[300px] text-[15px] leading-relaxed text-stone-700">
       <Regenerate text={ANSWERS[attempt % ANSWERS.length]} attempt={attempt} />
     </div>
   );
@@ -138,7 +146,7 @@ export function StreamingTextPreview() {
     return () => clearTimeout(id);
   }, []);
   return (
-    <div className="w-[300px] text-[15px] leading-relaxed text-stone-700">
+    <div className="w-full max-w-[300px] text-[15px] leading-relaxed text-stone-700">
       <StreamingText text={text} streaming={streaming} />
     </div>
   );
@@ -150,7 +158,7 @@ export function ToolCallPreview() {
     1300,
   );
   const detail = status === 'done' ? '6 results' : status === 'idle' ? undefined : '"borrow checker"';
-  return <div className="w-[340px] text-[15px]"><ToolCall name="search_web" status={status} detail={detail} size={36} width={170} /></div>;
+  return <div className="w-full max-w-[340px] text-[15px]"><ToolCall name="search_web" status={status} detail={detail} size={36} width={170} /></div>;
 }
 
 // hold → let go → hold through → allowed → a fresh gate
@@ -164,7 +172,7 @@ export function HoldToAllowPreview() {
   const stage = GATE_SEQ[tick % GATE_SEQ.length];
   const epoch = Math.floor(tick / GATE_SEQ.length); // a fresh gate each loop
   return (
-    <div className="w-[320px]">
+    <div className="w-full max-w-[320px]">
       <HoldToAllow key={epoch} verb="run" action="rm -rf dist" holding={stage === 1} status={stage === 2 ? 'allowed' : undefined} />
     </div>
   );
@@ -210,7 +218,7 @@ const PRINT = (() => {
 export function ImageRevealPreview() {
   const progress = useCycle([0, 0.15, 0.3, 0.45, 0.6, 0.75, 0.9, 1, 1, 1, 1], 420);
   return (
-    <div className="w-[300px]">
+    <div className="w-full max-w-[300px]">
       <ImageReveal progress={progress} src={progress >= 1 ? PRINT : undefined} generating aspect="3 / 2" cell={9} />
     </div>
   );
@@ -228,7 +236,7 @@ INGEST.push({ stage: 'idle', page: 0, chunks: 0 });
 export function FileChunkerPreview() {
   const s = useCycle(INGEST, 520);
   return (
-    <div className="w-[320px]">
+    <div className="w-full max-w-[320px]">
       <FileChunker name="handbook.pdf" stage={s.stage} page={s.page} pages={6} chunks={s.chunks} tokens={s.tokens ?? 0} width={150} size={44} />
     </div>
   );

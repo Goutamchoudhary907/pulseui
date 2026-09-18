@@ -55,7 +55,7 @@ const moments = [
 export default function Problem() {
   return (
     <section className="border-t border-stone-200">
-      <div className="max-w-6xl mx-auto px-6 py-24">
+      <div className="max-w-6xl mx-auto px-6 py-16 sm:py-24">
         <SectionHeading
           eyebrow="The problem"
           title={

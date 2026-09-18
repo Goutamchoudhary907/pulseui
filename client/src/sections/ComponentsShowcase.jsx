@@ -8,7 +8,7 @@ export default function ComponentsShowcase() {
 
   return (
     <section className="border-t border-stone-200">
-      <div className="max-w-6xl mx-auto px-6 py-24">
+      <div className="max-w-6xl mx-auto px-6 py-16 sm:py-24">
         <div className="flex flex-wrap items-end justify-between gap-8">
           <SectionHeading
             eyebrow="The library"
@@ -31,7 +31,7 @@ export default function ComponentsShowcase() {
           </Link>
         </div>
 
-        <div className="mt-14 grid gap-5 sm:grid-cols-2">
+        <div className="mt-14 grid grid-cols-1 gap-5 sm:grid-cols-2">
           {registry.map((c, i) => (
             <ComponentCard
               key={c.slug}

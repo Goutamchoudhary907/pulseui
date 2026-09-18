@@ -40,7 +40,7 @@ export default function ThinkingIndicatorPage() {
       meta="0 dependencies · canvas"
       previewClassName="min-h-[420px]"
       preview={
-        <div className="flex w-full flex-col items-center gap-10 px-6 pb-12 pt-2 md:flex-row md:justify-center md:gap-16">
+        <div className="flex w-full flex-col items-center gap-8 px-4 pb-6 pt-6 sm:gap-10 sm:px-6 sm:pb-12 sm:pt-2 md:flex-row md:justify-center md:gap-16">
           <ThinkingIndicator settled={settled} activity={activity} size={200} />
 
           <div className="w-full max-w-sm divide-y divide-stone-100 rounded-2xl border border-stone-200 bg-white shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
