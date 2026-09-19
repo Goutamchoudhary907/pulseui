@@ -83,8 +83,10 @@ export default function ConfidenceTextPage() {
     { text: 'cache.', confidence: 0.3 },
   ]}
   threshold={0.6}
-  resolved={answer.verified}
-/>`}
+/>
+
+// sharpen every token once the answer's been double-checked:
+// resolved={answer.verified}`}
       props={props}
     />
   );

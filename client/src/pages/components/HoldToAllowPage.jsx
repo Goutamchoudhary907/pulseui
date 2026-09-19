@@ -98,9 +98,13 @@ export default function HoldToAllowPage() {
   verb="delete"
   action="rm -rf node_modules dist"
   risk="high"
-  onAllow={() => runTool(call)}
-  onDeny={() => reply('Skipped.')}
-/>`}
+  onAllow={() => console.log('allowed')}
+  onDeny={() => console.log('denied')}
+/>
+
+// wire it to a real pending tool call:
+// onAllow={() => runTool(call)}
+// onDeny={() => reply('Skipped.')}`}
       props={props}
     />
   );

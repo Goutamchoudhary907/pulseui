@@ -121,10 +121,14 @@ export default function TimerPage() {
       usage={`import Timer from './components/Timer';
 
 // while the model thinks — sweeps and counts; stops on "Thought for 0:12"
-<Timer running={isThinking} label />
+<Timer running label />
 
 // a job with known progress
-<Timer progress={done / total} onComplete={notify} />`}
+<Timer progress={0.62} onComplete={() => console.log('done')} />
+
+// wire to real state:
+// <Timer running={isThinking} label />
+// <Timer progress={done / total} onComplete={notify} />`}
       props={props}
     />
   );

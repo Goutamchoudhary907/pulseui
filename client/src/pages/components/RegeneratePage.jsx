@@ -152,16 +152,22 @@ export default function RegeneratePage() {
           </PillButton>
         </>
       }
-      usage={`import Regenerate from './components/Regenerate';
-import StreamingText from './components/StreamingText';
+      usage={`import { useState } from 'react';
+import Regenerate from './components/Regenerate';
 
-// bump \`attempt\` → the old answer rewinds, then the new stream renders
-<Regenerate text={answer} attempt={attempt}>
-  <StreamingText text={answer} streaming={isStreaming} />
-</Regenerate>
+const [text, setText] = useState('The cache probably caused it.');
+const [attempt, setAttempt] = useState(0);
 
-// or let it type the new text in itself
-<Regenerate text={answer} attempt={attempt} />`}
+// bump \`attempt\` → the old answer rewinds, then types the new text in
+<Regenerate text={text} attempt={attempt} />
+<button onClick={() => { setText('It was actually a race condition.'); setAttempt((a) => a + 1); }}>
+  regenerate
+</button>
+
+// or hand it a live stream instead of typing text itself:
+// <Regenerate text={answer} attempt={attempt}>
+//   <StreamingText text={answer} streaming={isStreaming} />
+// </Regenerate>`}
       props={props}
     />
   );

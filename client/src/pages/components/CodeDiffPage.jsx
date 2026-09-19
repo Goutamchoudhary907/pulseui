@@ -78,13 +78,16 @@ export default function CodeDiffPage() {
       usage={`import CodeDiff from './components/CodeDiff';
 
 <CodeDiff
-  status={change.status}   // 'pending' | 'accepted' | 'rejected'
+  status="pending"   // 'pending' | 'accepted' | 'rejected'
   lines={[
     { type: 'context', content: 'const retries =' },
     { type: 'remove',  content: '  1;' },
     { type: 'add',     content: '  3;' },
   ]}
-/>`}
+/>
+
+// wire status to a real accept/reject decision:
+// status={change.status}`}
       props={props}
     />
   );

@@ -14,10 +14,10 @@ export default function Home() {
   return (
     <>
       <Hero />
-      <Problem />
-      <Solution />
       <ComponentsShowcase />
       <InContext />
+      <Problem />
+      <Solution />
       <HowItWorks />
       <CTA />
     </>

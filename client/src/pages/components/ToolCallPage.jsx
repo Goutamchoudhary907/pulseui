@@ -25,7 +25,7 @@ const STEP = { calling: 900, running: 2600, done: 1800, error: 2200 };
 
 export default function ToolCallPage() {
   const phone = usePhone();
-  const [run, setRun] = useState(false);
+  const [run, setRun] = useState(true); // play once on arrival so the page isn't a blank canvas
   const [fail, setFail] = useState(false);
   const [i, setI] = useState(0);
   const [phase, setPhase] = useState('idle');
@@ -54,6 +54,7 @@ export default function ToolCallPage() {
     setPhase('idle');
     setRun(true);
   };
+
   const reset = () => {
     clearTimeout(timer.current);
     setRun(false);
@@ -103,14 +104,17 @@ export default function ToolCallPage() {
       }
       usage={`import ToolCall from './components/ToolCall';
 
-{message.toolCalls.map((call) => (
-  <ToolCall
-    key={call.id}
-    name={call.name}
-    status={call.status}   // 'calling' | 'running' | 'done' | 'error'
-    detail={call.summary}
-  />
-))}`}
+<ToolCall name="search_web" status="running" detail="3 results so far" />
+
+// wire it to a real tool call stream:
+// {message.toolCalls.map((call) => (
+//   <ToolCall
+//     key={call.id}
+//     name={call.name}
+//     status={call.status}   // 'calling' | 'running' | 'done' | 'error'
+//     detail={call.summary}
+//   />
+// ))}`}
       props={props}
     />
   );

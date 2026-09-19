@@ -66,14 +66,21 @@ export default function ThinkingIndicatorPage() {
           <PillButton active={settled} onClick={() => { setSim(false); setSettled(true); }}>Settled</PillButton>
         </>
       }
-      usage={`import ThinkingIndicator from './components/ThinkingIndicator';
+      usage={`import { useState } from 'react';
+import ThinkingIndicator from './components/ThinkingIndicator';
 
-// inline, next to the assistant avatar
+const [settled, setSettled] = useState(false);
+
 <ThinkingIndicator
-  settled={!isThinking}
-  activity={reasoningTokensPerSec / 40}
-  onSettled={() => setShowAnswer(true)}
-/>`}
+  settled={settled}
+  activity={0.6}
+  onSettled={() => console.log('field collapsed into the core')}
+/>
+
+// wire it to a real stream:
+// settled={!isThinking}
+// activity={reasoningTokensPerSec / 40}   // livelier field the faster it reasons
+// onSettled={() => setShowAnswer(true)}`}
       props={props}
     />
   );

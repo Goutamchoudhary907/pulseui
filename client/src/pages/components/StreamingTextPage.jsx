@@ -174,13 +174,17 @@ export default function StreamingTextPage() {
           <PillButton onClick={manual(s.reset)}>reset</PillButton>
         </>
       }
-      usage={`import StreamingText from './components/StreamingText';
+      usage={`import { useState } from 'react';
+import StreamingText from './components/StreamingText';
 
-// keep appending chunks from your stream; pass the whole string
-const [answer, setAnswer] = useState('');
-for await (const chunk of stream) setAnswer((a) => a + chunk);
+const [text, setText] = useState('The cache probably caused it.');
 
-<StreamingText text={answer} streaming={isStreaming} />`}
+<StreamingText text={text} streaming={false} />
+
+// wire it to a real stream — keep appending chunks, pass the whole string:
+// const [answer, setAnswer] = useState('');
+// for await (const chunk of stream) setAnswer((a) => a + chunk);
+// <StreamingText text={answer} streaming={isStreaming} />`}
       props={props}
     />
   );

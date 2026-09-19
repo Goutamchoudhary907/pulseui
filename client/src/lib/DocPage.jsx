@@ -29,7 +29,7 @@ export default function DocPage({
   const lines = entry.source.split('\n').length;
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-12 sm:px-6 sm:py-14 md:py-20">
+    <div className="max-w-6xl mx-auto px-4 pt-6 pb-12 sm:px-6 sm:pt-8 sm:pb-14 md:pt-10 md:pb-20">
       <Link
         to="/components"
         className="inline-flex items-center gap-1.5 text-sm text-stone-500 hover:text-ink"
@@ -37,7 +37,7 @@ export default function DocPage({
         ← All components
       </Link>
 
-      <div className="mt-6 flex flex-wrap items-end justify-between gap-6">
+      <div className="mt-4 flex flex-wrap items-end justify-between gap-6">
         <div className="max-w-2xl">
           <div className="flex flex-wrap items-center gap-3">
             <h1 className="font-display text-[44px] leading-none tracking-[-0.015em] text-ink sm:text-[56px]">

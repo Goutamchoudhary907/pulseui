@@ -11,7 +11,11 @@ import CodeDiff from '../components/CodeDiff';
 import HoldToAllow from '../components/HoldToAllow';
 import ContextMeter from '../components/ContextMeter';
 
-const STEP_MS = [700, 1800, 700, 1200, 700, 1400, 2800, 1300, 1400, 700, 1200, 4800];
+const GATE_STEP = 7;
+const GATE_MS = 4000;
+const STEP_MS = [650, 1300, 650, 850, 650, 950, 1700, GATE_MS, 650, 900, 3400];
+
+const DEFAULT_MESSAGE = 'The auth test is flaky on CI — can you fix it?';
 
 const ANSWER =
   'The flake is a timing issue: the assertion runs before the 300ms debounce fires. Advance the timers, then assert:';
@@ -36,18 +40,36 @@ const USED = [
 function useScript() {
   const [t, setT] = useState(0);
   const [epoch, setEpoch] = useState(0);
+  const timerRef = useRef(null);
+
+  const goTo = (next) => {
+    if (next < STEP_MS.length) setT(next);
+    else {
+      setT(0);
+      setEpoch((e) => e + 1);
+    }
+  };
+
   useEffect(() => {
-    const id = setTimeout(() => {
-      if (t + 1 < STEP_MS.length) setT(t + 1);
-      else {
-        setT(0);
-        setEpoch((e) => e + 1);
-      }
-    }, STEP_MS[t]);
-    return () => clearTimeout(id);
-  }, [t]);
-  return { t, epoch };
+    timerRef.current = setTimeout(() => goTo(t + 1), STEP_MS[t]);
+    return () => clearTimeout(timerRef.current);
+  }, [t, epoch]);
+
+  const resolveGate = () => {
+    if (t !== GATE_STEP) return;
+    clearTimeout(timerRef.current);
+    goTo(t + 1);
+  };
+
+  const restart = () => {
+    clearTimeout(timerRef.current);
+    setT(0);
+    setEpoch((e) => e + 1);
+  };
+
+  return { t, epoch, resolveGate, restart };
 }
+
 function useStreamedAnswer(active) {
   const [text, setText] = useState('');
   useEffect(() => {
@@ -65,24 +87,53 @@ function useStreamedAnswer(active) {
   return { text, streaming: active && text.length < ANSWER.length };
 }
 
-function Conversation({ t, epoch }) {
+function MiniPill({ tone, onClick, children }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={
+        'rounded-full border px-2.5 py-1 font-mono text-[11px] transition-colors ' +
+        (tone === 'accept'
+          ? 'border-emerald-200 bg-emerald-50 text-emerald-700 hover:border-emerald-300'
+          : 'border-stone-200 bg-white text-stone-500 hover:border-stone-300 hover:text-ink')
+      }
+    >
+      {children}
+    </button>
+  );
+}
+
+function Conversation({ t, epoch, resolveGate, message }) {
   const phone = usePhone();
   const answer = useStreamedAnswer(t >= 6);
   const traceW = phone ? 96 : 132;
+  const [diffChoice, setDiffChoice] = useState(null);
+  const atGate = t === GATE_STEP;
 
   const toolStatus = (from, to) => (t < from ? 'idle' : t === from ? 'calling' : t < to ? 'running' : 'done');
   const read = toolStatus(2, 4);
   const test1 = toolStatus(4, 6);
-  const test2 = toolStatus(9, 11);
+  const test2 = toolStatus(8, 10);
   const thinking = t >= 1 && t < 6;
-  const diffStatus = t >= 9 ? 'accepted' : 'pending';
+  const diffStatus = t > GATE_STEP ? 'accepted' : diffChoice || 'pending';
+  const diffLabel = diffStatus === 'accepted' ? '✓ accepted' : diffStatus === 'rejected' ? '✕ reverted' : 'pending review';
+
+  const acceptDiff = () => {
+    setDiffChoice('accepted');
+    resolveGate();
+  };
+  const rejectDiff = () => {
+    setDiffChoice('rejected');
+    setTimeout(() => setDiffChoice((v) => (v === 'rejected' ? null : v)), 1200);
+  };
 
   return (
-    <div className="flex h-full flex-col justify-end gap-4">
+    <div className="flex flex-col gap-4">
       {/* user */}
       <div className="flex justify-end">
         <div className="max-w-[85%] rounded-2xl rounded-tr-md bg-stone-100 px-4 py-2.5 text-[14px] text-stone-700">
-          The auth test is flaky on CI — can you fix it?
+          {message}
         </div>
       </div>
 
@@ -119,13 +170,23 @@ function Conversation({ t, epoch }) {
 
           {t >= 7 && (
             <div className="overflow-hidden rounded-xl border border-stone-200 bg-white shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
-              <div className="flex items-center justify-between border-b border-stone-200 bg-stone-50/70 px-4 py-2 font-mono text-[11px] text-stone-500">
+              <div className="flex items-center justify-between gap-2 border-b border-stone-200 bg-stone-50/70 px-4 py-2 font-mono text-[11px] text-stone-500">
                 <span>auth.spec.ts</span>
-                <span className={diffStatus === 'accepted' ? 'text-emerald-600' : ''}>
-                  {diffStatus === 'accepted' ? '✓ accepted' : 'pending review'}
-                </span>
+                {atGate ? (
+                  <div className="flex items-center gap-1.5">
+                    <MiniPill tone="reject" onClick={rejectDiff}>✕ reject</MiniPill>
+                    <MiniPill tone="accept" onClick={acceptDiff}>✓ accept</MiniPill>
+                  </div>
+                ) : (
+                  <span className={diffStatus === 'accepted' ? 'text-emerald-600' : ''}>{diffLabel}</span>
+                )}
               </div>
               <CodeDiff key={epoch} lines={DIFF} status={diffStatus} style={{ padding: '6px 0' }} />
+              {atGate && (
+                <div className="border-t border-stone-100 px-4 py-1.5 font-mono text-[10.5px] text-stone-400">
+                  ← try it, this diff is real
+                </div>
+              )}
             </div>
           )}
 
@@ -135,19 +196,20 @@ function Conversation({ t, epoch }) {
                 key={epoch}
                 verb="run"
                 action="npm test -- auth.spec.ts"
-                holding={t === 8 ? true : undefined}
-                status={t >= 9 ? 'allowed' : undefined}
+                status={t > GATE_STEP ? 'allowed' : undefined}
+                onAllow={resolveGate}
               />
+              {atGate && <div className="mt-1.5 font-mono text-[10.5px] text-stone-400">hold to actually run it</div>}
             </div>
           )}
 
-          {t >= 9 && (
+          {t >= 8 && (
             <div className="rounded-2xl border border-stone-200 bg-white px-4 py-2.5 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
               <ToolCall name="run_tests" status={test2} width={traceW} detail={test2 === 'done' ? '48 passed' : 'auth.spec.ts'} />
             </div>
           )}
 
-          {t >= 11 && (
+          {t >= 10 && (
             <div className="rounded-2xl rounded-tl-md border border-stone-200 bg-white px-4 py-3 text-[14.5px] leading-relaxed text-stone-800 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
               Green — the assertion now waits for the debounce.
             </div>
@@ -158,18 +220,41 @@ function Conversation({ t, epoch }) {
   );
 }
 
-function Composer({ value }) {
+function Composer({ value, draft, onDraftChange, onSend }) {
   const phone = usePhone();
+  const submit = () => {
+    if (!draft.trim()) return;
+    onSend();
+  };
   return (
     <div className="border-t border-stone-200 bg-white">
-      <div className="px-4 pb-2 pt-3 text-[14px] text-stone-400 sm:px-5">Ask a follow-up…</div>
+      <div className="px-4 pb-2 pt-3 sm:px-5">
+        <input
+          type="text"
+          value={draft}
+          onChange={(e) => onDraftChange(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') submit();
+          }}
+          placeholder="Ask a follow-up…"
+          aria-label="Send a message to restart the demo"
+          className="w-full bg-transparent text-[14px] text-stone-700 outline-none placeholder:text-stone-400"
+        />
+      </div>
       <div className="flex items-center justify-between gap-3 px-3 pb-3 sm:px-4">
         <span className="hidden rounded-md border border-stone-200 px-2 py-1 font-mono text-[11px] text-stone-500 sm:inline">
           claude-sonnet-5
         </span>
         <div className="flex items-center gap-3 sm:gap-4">
           <ContextMeter value={value} label length={phone ? 110 : 200} />
-          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-ink text-white">↑</span>
+          <button
+            type="button"
+            onClick={submit}
+            aria-label="Send"
+            className="flex h-8 w-8 items-center justify-center rounded-full bg-ink text-white transition-transform hover:scale-105 active:scale-95"
+          >
+            ↑
+          </button>
         </div>
       </div>
     </div>
@@ -177,19 +262,35 @@ function Composer({ value }) {
 }
 
 function Scene() {
-  const { t, epoch } = useScript();
+  const { t, epoch, resolveGate, restart } = useScript();
+  const scrollRef = useRef(null);
+  const [message, setMessage] = useState(DEFAULT_MESSAGE);
+  const [draft, setDraft] = useState(DEFAULT_MESSAGE);
+
+  const send = () => {
+    setMessage(draft.trim() || DEFAULT_MESSAGE);
+    restart();
+  };
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
+  }, [t]);
+
   // the meter creeps up as the turn does work
   const [ctx, setCtx] = useState(0.31);
   useEffect(() => {
     const id = setInterval(() => setCtx((v) => (v >= 0.62 ? 0.31 : v + 0.031)), 1500);
     return () => clearInterval(id);
   }, []);
+
   return (
     <>
-      <div className="h-[600px] overflow-hidden px-4 py-5 sm:h-[560px] sm:px-6">
-        <Conversation key={epoch} t={t} epoch={epoch} />
+      <div ref={scrollRef} className="no-scrollbar h-[520px] overflow-y-auto overflow-x-hidden px-4 py-5 sm:h-[480px] sm:px-6">
+        <Conversation key={epoch} t={t} epoch={epoch} resolveGate={resolveGate} message={message} />
       </div>
-      <Composer value={ctx} />
+      <Composer value={ctx} draft={draft} onDraftChange={setDraft} onSend={send} />
     </>
   );
 }
@@ -208,7 +309,7 @@ export default function InContext() {
               Built to sit <em className="italic">together.</em>
             </>
           }
-          body="One turn of a coding assistant, seven components. Each is the same size and place as the flat control it replaces — they compose without special layout."
+          body="One turn of a coding assistant, seven components. Type your own message and hit send, or hold the approval gate — it's a real composer, not a video."
         />
 
         <div
@@ -222,7 +323,7 @@ export default function InContext() {
               <span className="h-2.5 w-2.5 rounded-full bg-stone-200" />
               <span className="ml-2 font-mono text-[11px] text-stone-400">acme · assistant</span>
             </div>
-            {inView ? <Scene /> : <div className="h-[600px] sm:h-[560px]" />}
+            {inView ? <Scene /> : <div className="h-[520px] sm:h-[480px]" />}
           </div>
         </div>
 

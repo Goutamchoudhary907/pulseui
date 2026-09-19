@@ -10,6 +10,8 @@ const props = [
   { name: 'src', type: 'string', desc: 'The finished image. Leave it undefined until your API returns it — the dots never need it.' },
   { name: 'generating', type: 'boolean', def: 'false', desc: 'Keeps the dots drifting while progress is still 0 (queued, first step pending).' },
   { name: 'cell', type: 'number', def: '10', desc: 'Dot spacing in px. Smaller is finer and costs more per frame.' },
+  { name: 'label', type: 'string', def: "'Creating image'", desc: 'Caption shown top-left of the frame while generating.' },
+  { name: 'showPercent', type: 'boolean', def: 'true', desc: 'Shows the live percentage pill bottom-right of the frame.' },
   { name: 'alt', type: 'string', desc: 'Alt text for the finished image.' },
   { name: 'aspect', type: 'string', def: "'4 / 3'", desc: 'CSS aspect-ratio of the frame.' },
   { name: 'onRevealed', type: '() => void', desc: 'Fires once every dot is home; the image fades in when src is there too.' },
@@ -175,7 +177,6 @@ export default function ImageRevealPage() {
     setAuto(false);
     fn();
   };
-  const pct = Math.round(progress * 100);
 
   return (
     <DocPage
@@ -184,11 +185,8 @@ export default function ImageRevealPage() {
       previewClassName="min-h-[480px]"
       preview={
         <div className="w-full max-w-md px-4 py-6 sm:px-6">
-          <div className="rounded-2xl border border-stone-200 bg-white p-3 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
-            <div className="mb-3 flex items-baseline justify-between gap-3 px-1 font-mono text-[11px] text-stone-400">
-              <span className="truncate text-stone-600">/imagine {PROMPTS[i]}</span>
-              <span className="shrink-0 tabular-nums">{dry ? 'done' : running || progress > 0 ? `generating · ${pct}%` : 'queued'}</span>
-            </div>
+          <div className="rounded-2xl border border-stone-900 bg-[#08090b] p-3 shadow-[0_1px_2px_rgba(0,0,0,0.2)]">
+            <div className="mb-1.5 truncate px-1 font-mono text-[11px] text-white/80">/imagine {PROMPTS[i]}</div>
             {/* the URL only exists once the run is over — same as a real API */}
             <ImageReveal progress={progress} src={progress >= 1 ? src : undefined} generating={running} cell={9} alt={PROMPTS[i]} onRevealed={() => setDry(true)} />
           </div>
@@ -212,9 +210,13 @@ export default function ImageRevealPage() {
       }
       usage={`import ImageReveal from './components/ImageReveal';
 
-// progress from your generation stream (steps done / total);
-// imageUrl is undefined until the API returns the picture
-<ImageReveal progress={step / steps} src={imageUrl} generating={isGenerating} alt={prompt} />`}
+<ImageReveal progress={0.6} generating alt="a snowy mountain lake" />
+
+// once the picture exists, pass its URL — dots fade into the real image:
+// <ImageReveal progress={1} src={imageUrl} alt={prompt} />
+
+// wire progress to a real generation stream (steps done / total):
+// <ImageReveal progress={step / steps} src={imageUrl} generating={isGenerating} alt={prompt} />`}
       props={props}
     />
   );

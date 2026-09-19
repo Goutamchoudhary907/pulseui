@@ -27,7 +27,7 @@ export default function ComponentsIndex() {
   const upcoming = registry.filter((c) => c.status !== 'available');
 
   return (
-    <div className="max-w-6xl mx-auto px-6 py-16 md:py-20">
+    <div className="max-w-6xl mx-auto px-6 pt-8 pb-16 md:pt-10 md:pb-20">
       <div className="max-w-2xl">
         <div className="font-mono text-[11px] uppercase tracking-[0.18em] text-stone-400">
           Components

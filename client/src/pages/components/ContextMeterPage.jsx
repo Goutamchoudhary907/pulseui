@@ -90,10 +90,13 @@ export default function ContextMeterPage() {
       usage={`import ContextMeter from './components/ContextMeter';
 
 // in a composer footer
-<ContextMeter value={tokensUsed / contextLimit} label />
+<ContextMeter value={0.62} label />
 
 // standalone tube
-<ContextMeter value={0.62} orientation="vertical" />`}
+<ContextMeter value={0.62} orientation="vertical" />
+
+// wire it to a real context window:
+// <ContextMeter value={tokensUsed / contextLimit} label />`}
       props={props}
     />
   );

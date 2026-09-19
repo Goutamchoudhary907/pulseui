@@ -95,6 +95,9 @@ body::before {
   .pui-logo * { animation: none !important; }
 }
 
+.no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+
 /* ---- Hero demo rotation (src/sections/Hero.jsx) */
 .hero-slide {
   animation: hero-in 600ms cubic-bezier(0.16, 1, 0.3, 1) both;

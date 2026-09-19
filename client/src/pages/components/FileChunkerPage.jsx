@@ -124,15 +124,23 @@ export default function FileChunkerPage() {
       }
       usage={`import FileChunker from './components/FileChunker';
 
-// drive it from whatever your ingestion job reports
 <FileChunker
-  name={file.name}
-  stage={job.stage}        // 'reading' | 'chunking' | 'embedding' | 'ready' | 'error'
-  page={job.page} pages={job.pages}
-  chunks={job.chunks}
-  tokens={job.tokens}
-  detail={job.error}
-/>`}
+  name="report.pdf"
+  stage="chunking"        // 'reading' | 'chunking' | 'embedding' | 'ready' | 'error'
+  page={6} pages={6}
+  chunks={8}
+  tokens={3100}
+/>
+
+// wire it to a real ingestion job:
+// <FileChunker
+//   name={file.name}
+//   stage={job.stage}
+//   page={job.page} pages={job.pages}
+//   chunks={job.chunks}
+//   tokens={job.tokens}
+//   detail={job.error}
+// />`}
       props={props}
     />
   );

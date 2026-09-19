@@ -20,7 +20,7 @@ const props = [
 
 export default function AgentStatusPage() {
   const [agents, setAgents] = useState([]);
-  const [run, setRun] = useState(0);
+  const [run, setRun] = useState(1); // play once on arrival so the hub isn't sitting empty
 
   const phone = usePhone();
   const wellRef = useRef(null);
@@ -93,14 +93,18 @@ export default function AgentStatusPage() {
       }
       usage={`import AgentStatus from './components/AgentStatus';
 
-<AgentStatus
-  agents={tasks.map((t) => ({
-    id: t.id,
-    label: t.name,
-    status: t.status,        // 'running' | 'done' | 'error'
-    progress: t.progress,    // 0..1, optional
-  }))}
-/>`}
+// agents: [{ id, label?, status: 'running' | 'done' | 'error', progress? }]
+// progress is 0..1 and optional — omit it for an indeterminate spinner ring.
+const agents = [
+  { id: 1, label: 'search', status: 'running', progress: 0.6 },
+  { id: 2, label: 'read file', status: 'done' },
+  { id: 3, label: 'lint', status: 'error' },
+];
+
+<AgentStatus agents={agents} />
+
+// wire it to real state by mapping your own tasks into this shape:
+// agents={tasks.map((t) => ({ id: t.id, label: t.name, status: t.status, progress: t.progress }))}`}
       props={props}
     />
   );
