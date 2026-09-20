@@ -204,8 +204,10 @@ export default function AgentStatus({
             fl.phase = 'gone'; ui.flash = 1;
           }
         } else {
-          tx = cx + Math.cos(fl.angle) * orbitR * 1.3;
-          ty = cy + Math.sin(fl.angle) * orbitR * 1.05;
+          // drift out past the orbit, but stay clear of the edge so the
+          // failed label never has to sit outside the canvas
+          tx = Math.min(Math.max(cx + Math.cos(fl.angle) * orbitR * 1.3, margin * 2), width - margin * 2);
+          ty = Math.min(Math.max(cy + Math.sin(fl.angle) * orbitR * 1.05, margin * 2), height - margin * 2);
         }
         if (launching || returning || working) busy = true;
         if (errored && age < 1800) busy = true;
@@ -305,8 +307,13 @@ export default function AgentStatus({
             ctx.font = FONT;
             const tw = ctx.measureText(text).width;
             const side = fl.labelX < cx ? -1 : 1;
-            const lx = fl.labelX + side * 20 - (side < 0 ? tw + 20 : 0);
-            const ly = fl.labelY - 22;
+            let lx = fl.labelX + side * 20 - (side < 0 ? tw + 20 : 0);
+            let ly = fl.labelY - 22;
+            // keep the pill fully on-canvas even when a failed flock drifts
+            // out past the orbit — clipped text is unreadable either way
+            const pillW = tw + 22, pillH = 20, pad = 4;
+            lx = Math.min(Math.max(lx, pad + 6), width - pad - pillW + 6);
+            ly = Math.min(Math.max(ly, pad + 10), height - pad - pillH + 10);
             ctx.globalAlpha = fl.labelAlpha;
             ctx.fillStyle = 'rgba(255, 255, 255, 0.92)';
             roundRect(ctx, lx - 6, ly - 10, tw + 22, 20, 10); ctx.fill();
